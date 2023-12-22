@@ -1,0 +1,21 @@
+{
+  "name": "Discord-Embed-Bot-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ascii-table": "^0.0.9",
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "eslint": "^8.56.0"
+  }
+}
