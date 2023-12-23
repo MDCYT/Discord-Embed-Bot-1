@@ -18,7 +18,7 @@ const queue = new Map();
 const Commands = new Collection();
 const Slashes = [];
 /**
- * Any Bot's custom client
+ * Any Bot's custom client 
  * @extends Discord.Client
  */
 class Client extends Discord.Client {
@@ -29,7 +29,7 @@ class Client extends Discord.Client {
    */
 	constructor(config, options = {}) {
 		super(options);
-
+		global.Client = this;
 		/**
      * Bot id
      */
