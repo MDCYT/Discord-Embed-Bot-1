@@ -35,6 +35,9 @@ dependencies:
   nodemon:
     specifier: ^3.0.2
     version: 3.0.2
+  uuid:
+    specifier: ^9.0.1
+    version: 9.0.1
   winston:
     specifier: ^3.11.0
     version: 3.11.0
@@ -1385,6 +1388,11 @@ packages:
 
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+    dev: false
+
+  /uuid@9.0.1:
+    resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
+    hasBin: true
     dev: false
 
   /webidl-conversions@7.0.0:

@@ -20,12 +20,12 @@ module.exports = class GitHubCommand extends Command {
         Click [here](https://github.com/MDCYT/Any-Bot) to go to the Any Bot repository!
         Please support me by starring ⭐ the repo, and feel free to comment about issues or suggestions!
       `)
-	  .setFields({
-		name: "Other links",
-		value: `**[Invite Me](https://discordapp.com/oauth2/authorize?client_id=${message.client.user.id}&scope=bot%20applications.commands&permissions=8) | ` +
+			.setFields({
+				name: 'Other links',
+				value: `**[Invite Me](https://discordapp.com/oauth2/authorize?client_id=${message.client.user.id}&scope=bot%20applications.commands&permissions=8) | ` +
         `[Support Server](${message.client.supportServerInvite})**`,
-	  })
-			
+			})
+
 			.setFooter({
 				text: message.member.displayName,
 				iconURL: message.author.displayAvatarURL({ dynamic: true }),
@@ -38,7 +38,7 @@ module.exports = class GitHubCommand extends Command {
 				new ButtonBuilder()
 					.setLabel('Github')
 					.setStyle(ButtonStyle.Link)
-					.setURL('https://github.com/MDCYT/Any-Bot') // TODO: CHANGE THIS
+					.setURL('https://github.com/MDCYT/Any-Bot')
 					.setEmoji('⭐'),
 				new ButtonBuilder()
 					.setLabel('Invite Me')
@@ -48,7 +48,7 @@ module.exports = class GitHubCommand extends Command {
 				new ButtonBuilder()
 					.setLabel('Support Server')
 					.setStyle(ButtonStyle.Link)
-					.setURL(message.client.supportServerInvite || "https://discord.gg/dae")
+					.setURL(message.client.supportServerInvite || 'https://discord.gg/dae')
 					.setEmoji('🛡'),
 
 			);
