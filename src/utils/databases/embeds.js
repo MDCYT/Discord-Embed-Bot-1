@@ -38,11 +38,27 @@ module.exports = {
     const embed = await Embed.findOneAndUpdate({ ID }, { ID, json},{ new: true });
     return embed;
   },
+  formatData(ID, json) {
+    const date = new Date();
+    return {ID, json, date};
+  },
   async editEmbed(ID, json) {
-    Embed.findByIdAndDelete({ID});
+    const embeds = await Embed.find({ ID });
+    for (let bad  of embeds) {
+      console.log(`deleting ${bad.ID} - ${bad.date}`)
+      await bad.deleteOne();  
+    }
     const date = new Date();
     const embed = new Embed({ID, json, date});
     return await embed.save();
+  },
+  async delecteRow(ID) {
+    const embed = await Embed.find({ ID });
+    for (let bad  of embed) {
+      console.log(`deleting ${bad.ID} - ${bad.date}`)
+      await bad.deleteOne();  
+    }
+
   },
   async selectRow(ID) {
     const embed = await Embed.find({ ID });
