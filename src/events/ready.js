@@ -7,43 +7,76 @@ const {
 const {
   abbreviateNumber
 } = require("js-abbreviation-number");
-
+const {
+  insertRow,
+  selectRow,
+  updateRow
+} = require("../utils/databases/roles");
+const { Client, ActivityType } = require("discord.js");
 module.exports = {
   name: "ready",
   once: true,
+  /**
+   * 
+   * @param {Client} client 
+   * @param {Collection} slashes 
+   */
   async execute(client, slashes) {
     const activities = [{
         name: `>help`,
-        type: "LISTENING"
+        type: ActivityType.Listening
+      
       },
       {
         name: "for you",
-        type: "LISTENING"
+        type: ActivityType.Listening
+
       },
     ];
+    await ["can_send_embeds", "set_buttons", "can_edit_or_create"].forEach(async ID=>{
+      client.logger.info("Initing rol " + ID);
+      const dbdata = await selectRow(ID);
+        if (dbdata.length < 1)
+        {
+          client.logger.info(`Cant get rol ${ID} initing as default`);
+          insertRow(ID, []); // Iniciar con la lista vacia
+        } else {
+          const data = dbdata[0];
+          updateRow(ID, data.roles || [])
+          client.logger.info(`Founded ${ID} setting as: ${(data.roles || []).length > 1 ? data.roles.join(",") : "default"}`)
+        }
+    })
 
     // Update presence
-    client.user.setActivity(activities[0].name, {
-      type: activities[0].type
-    });
+    client.user.setActivity({
+      name: "Test",
+      type: ActivityType.Playing
+    })
+   
 
     let activity = 1;
 
     setInterval(() => {
       activities[2] = {
         name: `${client.guilds.cache.size} servers`,
-        type: "WATCHING",
+        type: ActivityType.Whatching
+
       }; // Update server count
       activities[3] = {
         name: `with ${client.commands.size} commands`,
-        type: "PLAYING",
+        type: ActivityType.Playing
+
       }; // Update command count
 
       if (activity >= activities.length) activity = 0;
-      client.user.setActivity(activities[activity].name, {
-        type: activities[activity].type,
-      });
-
+      
+      client.user.setPresence({
+        activities: [activities[activity]],
+        status: "afk"
+      }
+      
+      );
+  
       activity++;
     }, 30000);
 
