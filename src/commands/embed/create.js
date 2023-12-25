@@ -199,6 +199,18 @@ module.exports = class EmbedCommand extends Command {
 		}
 		case 'create':
 		{
+			if (baseEmbed.startsWith("-")){
+				baseEmbed = baseEmbed.slice(1,baseEmbed.length);
+				console.log(baseEmbed);
+
+				const embedData = (await selectRow(baseEmbed))[0];
+				console.log(embedData);
+				if (embedData) 
+					embed = new EmbedBuilder(embedData.json)
+			
+			} else {
+				embed.setTitle('Embed vacio');
+			}
 			const checkEmbeds = (await selectRow(name)).length > 0;
 			if (checkEmbeds) {
 				embed.setTitle('Fallo al crear')
@@ -210,8 +222,7 @@ module.exports = class EmbedCommand extends Command {
 				return msg.edit({ content: '', embeds: [embed] });
 			}
 			if (!baseEmbed) baseEmbed = '--vacio'; // idk
-
-			embed.setTitle('Embed vacio');
+			
 			if (baseEmbed.toLowerCase().includes('ejemplo') || baseEmbed.toLowerCase().includes('example')) {
 				embed
 					.setTitle('Embed de ejemplo')
