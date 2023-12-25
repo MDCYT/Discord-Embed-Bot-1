@@ -14,6 +14,7 @@ const client = new Client(config, {
 		IntentsBitField.Flags.Guilds,
 		IntentsBitField.Flags.GuildMessages,
 		IntentsBitField.Flags.GuildWebhooks,
+		IntentsBitField.Flags.GuildPresences,
 	]
 });
 
