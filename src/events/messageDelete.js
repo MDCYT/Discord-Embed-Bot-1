@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 const axios = require("axios");
 
 module.exports = {
@@ -9,14 +9,14 @@ module.exports = {
     // Check for webhook and that message is not empty
     if (message.webhookID) return;
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setTitle("Message Update: `Delete`")
       .setAuthor({
         name: message.author.tag,
         iconURL: message.author.displayAvatarURL({ dynamic: true }),
       })
       .setTimestamp()
-      .setColor(message.guild.me.displayHexColor);
+      .setColor(message.guild.members.me.displayHexColor);
 
     // Message delete
 

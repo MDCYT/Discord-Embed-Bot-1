@@ -199,6 +199,10 @@ module.exports = class EmbedCommand extends Command {
 		}
 		case 'create':
 		{
+			if (!baseEmbed) {
+				baseEmbed = "-vacio";
+				embed.setTitle('Embed vacio')
+			};
 			if (baseEmbed.startsWith("-")){
 				baseEmbed = baseEmbed.slice(1,baseEmbed.length);
 				console.log(baseEmbed);
@@ -333,7 +337,16 @@ module.exports = class EmbedCommand extends Command {
 			else embed.setColor('#' + interaction.fields.fields.get('color').value.toUpperCase().replaceAll('#', '').replace('0XFF', ''), 16);
 			break;
 		}
-		case 'fields': {break;} // TODO: fields!1!!
+		case 'fieldstitle': {
+			if (!interaction.fields.fields.get('field_1_name').value) {
+				embed.data.fields[0] = {
+					name: false,
+					value: false
+				}
+			}
+			else embed.setColor('#' + interaction.fields.fields.get('color').value.toUpperCase().replaceAll('#', '').replace('0XFF', ''), 16);
+			break;
+		} 
 		case 'footer': {
 			if (!embed.data.footer) {
 				embed.data.footer = {
@@ -509,6 +522,38 @@ module.exports = class EmbedCommand extends Command {
 				await interaction.showModal(modal);
 				break;
 			}
+			case 'fieldstitle': {
+				const modal = new ModalBuilder()
+					.setCustomId('fieldstitle_' + name)
+					.setTitle('Aqui pon tus titulos')
+
+				for (let i = 0; i < 5; i++) {
+					modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder()
+					.setCustomId(`field_${i+1}_name`)
+					.setLabel(`Aqui pon el titulo de la ${i+1} columna`)
+					.setStyle(TextInputStyle.Short)
+					.setMaxLength(256)
+					.setRequired(false)))
+				}
+				await interaction.showModal(modal);
+				break;
+			}
+			case 'fieldsdescription': {
+				const modal = new ModalBuilder()
+					.setCustomId('fieldsdescription_' + name)
+					.setTitle('Aqui pon tus descripciones')
+
+				for (let i = 0; i < 5; i++) {
+					modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder()
+					.setCustomId(`field_${i+1}_description`)
+					.setLabel(`Aqui pon la descripcion de la ${i+1} columna`)
+					.setStyle(TextInputStyle.Paragraph)
+					.setMaxLength(1024)
+					.setRequired(false)))
+				}
+				await interaction.showModal(modal);
+				break;
+			}
 			default: {
 				const modal = new ModalBuilder()
 					.setCustomId('null_' + name)
@@ -577,6 +622,21 @@ module.exports = class EmbedCommand extends Command {
 						label: 'Editar imagenes',
 						description: 'Edita el imagenes actuales del embed (usar un link)',
 						value: `image_${name}`,
+					},
+					{
+						label: 'Editar los titulos de las columnas',
+						description: 'Edita los titulos de las columnas',
+						value: `fieldstitle_${name}`,
+					},
+					{
+						label: 'Editar las descripciones de las columnas',
+						description: 'Edita las descripciones de las columnas',
+						value: `fieldsdescription_${name}`,
+					},
+					{
+						label: 'Editar fields inlines',
+						description: 'Edita los inlines del los Fields (No se como se dice en español)',
+						value: `fieldsinlines_${name}`,
 					},
 
 
