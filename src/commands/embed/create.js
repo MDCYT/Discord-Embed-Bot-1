@@ -626,6 +626,7 @@ module.exports = class EmbedCommand extends Command {
 							.setValue(embed.data.fields[i]?.inline ?  `si` : `no`)
 							.setMaxLength(1024)
 							.setRequired(false)))
+							
 					}
 
 					await interaction.showModal(modal);
