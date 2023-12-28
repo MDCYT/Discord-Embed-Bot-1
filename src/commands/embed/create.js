@@ -9,6 +9,7 @@ module.exports = class EmbedCommand extends Command {
 	constructor(client) {
 		super(client, {
 			name: 'embed',
+			aliases: ["embeds", "emb"],
 			usage: 'embed <commando> <nombre> <base>',
 			description: 'Aqui se crea el embed (Si).',
 			type: client.types.INFO,
@@ -43,6 +44,7 @@ module.exports = class EmbedCommand extends Command {
 
 		if (type !== 'all') { if (!name || name.toLowerCase() == 'uuid') name = uuidv4(); }
 		// Init currentSession
+		message.shouldBeShowAnotherModal = false;
 		this.res.set(name,
 			{
 				expirteIn: Math.floor((new Date().getTime() + ((200_00 * 60))) / 1000),
@@ -282,7 +284,6 @@ module.exports = class EmbedCommand extends Command {
 					if (this.res.get(name).type !== 'edit') { await createEmbed(name, embed.toJSON()); }
 					else { await editEmbed(name, embed.toJSON()); }
 
-					this.onBadMsg(this.res.get(name).msg, global.Client, name);
 					interaction.reply({ content: 'Guardado!', ephemeral: true });
 					break;
 				}
@@ -337,23 +338,63 @@ module.exports = class EmbedCommand extends Command {
 				else embed.setColor('#' + interaction.fields.fields.get('color').value.toUpperCase().replaceAll('#', '').replace('0XFF', ''), 16);
 				break;
 			}
-			case 'fieldstitle': {
-				if(!embed.data.fields) embed.data.fields = [];
+			case "fieldsinline": {
+				var copyOfFields = [];
+				if (embed.data.fields)
+					copyOfFields = [].concat(embed.data.fields);
+				const fields = [];
 
-				for (let i = 0; i < 5; i++) {
-					if (!embed.data.fields[i] && interaction.fields.fields.get('field_' + i + 1 + '_name')?.value) {
-						embed.data.fields[i] = {
-							name: "",
-							value: "",
-							inline: false
-						}
-
-						embed.data.fields[i].name = interaction.fields.fields.get('field_' + i + '_name').value
-					} else {
-						if (!embed.data.fields[i]?.name) delete embed.data.fields[i];
-						else embed.data.fields[i].name = interaction.fields.fields.get('field_' + i + 1 + '_name').value;
-					}
+				for (let i = 1; i < 6; i++) {
+					console.log('field_' + i   + '_inline');
+					if (copyOfFields[i - 1] && copyOfFields[i-1].name) {
+						fields.push({
+							name: copyOfFields[i-1]?.name || `Nombre no valido`,
+							value: copyOfFields[i-1]?.description  || `Descripcion no valida`,
+							inline: interaction.fields.fields.get('field_' + (i)  + '_inline').value.startsWith("s")
+						})
+					} 
 				}
+				embed.setFields(fields)
+				break;
+			
+			}
+			case "fieldsdescription": {
+				var copyOfFields = [];
+				if (embed.data.fields)
+					copyOfFields = [].concat(embed.data.fields);
+				const fields = [];
+
+				for (let i = 1; i < 6; i++) {
+					console.log('field_' + i   + '_description');
+					if (interaction.fields.fields.get('field_' + (i)  + '_description').value ) {
+						fields.push({
+							name: copyOfFields[i-1]?.name || `Nombre no valido`,
+							value: interaction.fields.fields.get('field_' + i  + '_description').value || `Descripcion no valida`,
+							inline: copyOfFields[i-1]?.inline
+						})
+					} 
+				}
+				embed.setFields(fields)
+				break;
+			
+			}
+			case 'fieldstitle': {
+				var copyOfFields = [];
+				if (embed.data.fields)
+					copyOfFields = [].concat(embed.data.fields);
+				const fields = [];
+
+				for (let i = 1; i < 6; i++) {
+					console.log('field_' + i   + '_name');
+					if (interaction.fields.fields.get('field_' + (i)  + '_name').value) {
+						fields.push({
+							name: interaction.fields.fields.get('field_' + i  + '_name').value || `Nombre no valido`,
+							value: copyOfFields[i-1]?.value|| `Descripcion no valida`,
+							inline: copyOfFields[i-1]?.inline
+						})
+					} 
+				}
+				embed.setFields(fields)
 
 				break;
 			}
@@ -536,15 +577,18 @@ module.exports = class EmbedCommand extends Command {
 					const modal = new ModalBuilder()
 						.setCustomId('fieldstitle_' + name)
 						.setTitle('Aqui pon tus titulos')
-
+					if (!embed.data.fields) embed.data.fields = [];
 					for (let i = 0; i < 5; i++) {
 						modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder()
 							.setCustomId(`field_${i + 1}_name`)
 							.setLabel(`Aqui pon el titulo de la ${i + 1} columna`)
 							.setStyle(TextInputStyle.Short)
+							.setValue(embed.data.fields[i]?.name || ``)
 							.setMaxLength(256)
 							.setRequired(false)))
 					}
+		this.res.get(name).oldMsg.shouldBeShowAnotherModal = true;
+
 					await interaction.showModal(modal);
 					break;
 				}
@@ -552,16 +596,40 @@ module.exports = class EmbedCommand extends Command {
 					const modal = new ModalBuilder()
 						.setCustomId('fieldsdescription_' + name)
 						.setTitle('Aqui pon tus descripciones')
+						if (!embed.data.fields) embed.data.fields = [];
 
 					for (let i = 0; i < 5; i++) {
 						modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder()
 							.setCustomId(`field_${i + 1}_description`)
 							.setLabel(`Aqui pon la descripcion de la ${i + 1} columna`)
 							.setStyle(TextInputStyle.Paragraph)
+							.setValue(embed.data.fields[i]?.value || ``)
 							.setMaxLength(1024)
 							.setRequired(false)))
 					}
+
 					await interaction.showModal(modal);
+
+					break;
+				}
+				case 'fieldsinlines': {
+					const modal = new ModalBuilder()
+						.setCustomId('fieldsinline_' + name)
+						.setTitle('Aqui pon si quieres apilar los columnas')
+						if (!embed.data.fields) embed.data.fields = [];
+
+					for (let i = 0; i < 5; i++) {
+						modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder()
+							.setCustomId(`field_${i + 1}_inline`)
+							.setLabel(`Aqui si la columna se ${i + 1} debe apilar`)
+							.setStyle(TextInputStyle.Paragraph)
+							.setValue(embed.data.fields[i]?.inline ?  `si` : `no`)
+							.setMaxLength(1024)
+							.setRequired(false)))
+					}
+
+					await interaction.showModal(modal);
+
 					break;
 				}
 				default: {
