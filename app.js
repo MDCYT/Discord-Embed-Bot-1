@@ -23,7 +23,7 @@ const client = new Client(config, {
 function init() {
 	client.logger.info("initing...")
 	client.loadCommands('./src/commands');
-	// client.loadSlashCommands('./src/slash');
+	client.loadSlashCommands('./src/slash');
 	// client.loadButtons('./src/buttons');
 	// client.loadSelectMenus('./src/selectmenus');
 	// client.loadContextMenus('./src/contextmenus');
