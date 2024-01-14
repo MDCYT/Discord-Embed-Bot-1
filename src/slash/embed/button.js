@@ -36,6 +36,24 @@ module.exports = class EchoSlash extends Slash {
                 .setRequired(false)
             )
         )
+        .addSubcommand((subcommand) =>
+        subcommand
+          .setName("remove")
+          .setDescription("Remueve un boton segun la posicion.")
+          .addStringOption((option) =>
+            option
+              .setName("number")
+              .setDescription("Numero del boton que deseas eliminar, ejemplo: 1 => primer boton")
+              .setRequired(true)
+              .addChoices(
+                { name: '1', value: '1' },
+                { name: '2', value: '2' },
+                { name: '3', value: '3' },
+                { name: '4', value: '4' },
+                { name: '5', value: '5' }
+              )
+          )
+      )
     });
   }
 
