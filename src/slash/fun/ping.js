@@ -12,9 +12,7 @@ module.exports = class EchoSlash extends Slash {
 
   async run(interaction) {
     const time = Date.now();
-    await interaction.deferReply({
-      ephemeral: true,
-    });
+
     const latency = `\`\`\`ini\n[ ${Math.floor(Date.now() - time)}ms ]\`\`\``;
     const apiLatency = `\`\`\`ini\n[ ${Math.round(
       interaction.client.ws.ping

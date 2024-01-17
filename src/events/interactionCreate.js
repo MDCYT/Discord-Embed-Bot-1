@@ -2,7 +2,6 @@ const {EmbedBuilder} = require("discord.js")
 module.exports = {
   name: "interactionCreate",
   async execute(interaction, client) {
-    console.log(interaction);
     this.onCustomEv =async (id) => {
       const event = (await events.selectRow(id))[0].events  ;
         for (let ev of event) {
