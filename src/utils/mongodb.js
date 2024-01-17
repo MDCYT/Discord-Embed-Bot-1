@@ -19,7 +19,7 @@ mongoose
   });
 
 global.__Mongoose = mongoose;
-
+  
 const models = fs.readdirSync(path.join(__dirname, "databases"));
 models.forEach((model) => {
 
@@ -27,4 +27,5 @@ models.forEach((model) => {
   const modelPath = path.join(__dirname, "databases", model);
   const modelFile = require(modelPath);
   module.exports[modelName] = modelFile;
+  global[modelName] = modelFile;
 });

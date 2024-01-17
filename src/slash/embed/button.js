@@ -36,6 +36,32 @@ module.exports = class EchoSlash extends Slash {
                 .setRequired(false)
             )
         )
+         .addSubcommand((subcommand) =>
+          subcommand
+            .setName("addevent")
+            .setDescription("Añade un boton de link a un mensaje enviado por algun webhook hecho por el bot.")
+            .addStringOption((option) =>
+              option
+                .setName("message_url")
+                .setDescription("URL del mensaje enviado por el webhook")
+                .setRequired(true)
+            ).addStringOption((option) =>
+              option
+                .setName("name")
+                .setDescription("Texto que saldra en el boton")
+                .setRequired(true))
+            .addStringOption((option) =>
+              option
+                .setName("event_id")
+                .setDescription("ID del evento en cuestión que se usará al interactuar")
+                .setRequired(true)
+            ).addStringOption((option) =>
+              option
+                .setName("emoji")
+                .setDescription("ID o emoji que deseas usar.")
+                .setRequired(false)
+            )
+        )
         .addSubcommand((subcommand) =>
           subcommand
             .setName("remove")
@@ -68,6 +94,69 @@ module.exports = class EchoSlash extends Slash {
     var web = undefined;
 
     switch (type_message) {
+          case "addevent": {
+        let message_url = options.getString("message_url");
+        let name = options.getString("name");
+        let evId = options.getString("event_id");
+        let emoji = options.getString("emoji");
+        // Check if message_url is something like https://discord.com/channels/1187757312480383097/1187757313205993582/1194879261371277362
+        // Create regex
+        const regex = /^https:\/\/(?:\w+\.)?discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)$/
+        const match = message_url.match(regex);
+        if (!match) return interaction.editReply({ content: "La URL de mensaje que proporcionaste no es valida." })
+        const values = match.slice(1)
+        const [guildID, channelID, messageID] = values
+
+        const webhooks = await interaction.guild.fetchWebhooks()
+
+        await webhooks.forEach(async webHok => {
+          if (webHok.owner.id === interaction.client.user.id) {
+            if (!web) {
+              web = webHok;
+            } else {
+              await webHok.delete()
+            }
+          }
+        })
+
+        if (!web) return interaction.editReply({ content: "No existe ningun webhook creado por el bot en este servidor, primero envia algun mensaje con el bot." })
+
+        try {
+          const oldMessage = await web.fetchMessage(messageID)
+
+          if (!oldMessage) throw Error("No podemos :'v")
+
+          const components = oldMessage.components[0] || [];
+
+          const actionRow = new ActionRowBuilder(components.data)
+
+          for (let i = 0; (i < components.components?.length || 0); i++) {
+            actionRow.addComponents(components.components[i])
+          }
+          const button = new ButtonBuilder()
+            .setLabel(name)
+            .setCustomId('customevents_:' + evId)
+            .setStyle(ButtonStyle.Success)
+           if (emoji)
+             button.setEmoji(emoji)
+          actionRow.addComponents(
+            button
+          ) // Ay mi MDC GOd
+
+          if (actionRow.components.length > 5) return interaction.editReply({ content: "Este mensaje ya tiene 5 componentes entre botones y lista, no puedes agregarle mas botones o alguna lista, borra algun boton antes de agregar otro." })
+
+          await web.editMessage(messageID, { components: [actionRow] })
+
+          interaction.editReply({ content: "Mensaje editado" })
+
+        } catch (e) {
+          console.log(e)
+          return interaction.editReply({ content: "Este mensaje no existe o no fue enviado por el bot." })
+        }
+
+        break;
+
+      }
       case "addlink": {
         let message_url = options.getString("message_url");
         let name = options.getString("name");
@@ -113,13 +202,15 @@ module.exports = class EchoSlash extends Slash {
           for (let i = 0; (i < components.components?.length || 0); i++) {
             actionRow.addComponents(components.components[i])
           }
-
-          actionRow.addComponents(new ButtonBuilder()
+          const button = new ButtonBuilder()
             .setLabel(name)
             .setStyle(ButtonStyle.Link)
             .setURL(url)
-            .setEmoji(emoji)
-          )
+           if (emoji)
+             button.setEmoji(emoji)
+          actionRow.addComponents(
+            button
+          ) // Ay mi MDC GOd
 
           if (actionRow.components.length > 5) return interaction.editReply({ content: "Este mensaje ya tiene 5 componentes entre botones y lista, no puedes agregarle mas botones o alguna lista, borra algun boton antes de agregar otro." })
 

@@ -74,7 +74,7 @@ module.exports = class EchoSlash extends Slash {
         const embed_Data = await selectRow(embed_id)
 
         if (!embed_Data[0])
-          return message.reply(`Can't find embed with ID: ${embed_id}, please use \`/embed create ${embed_id}\` to create the embed with this ID`)
+          return interaction.editReply(`Can't find embed with ID: ${embed_id}, please use \`/embed create ${embed_id}\` to create the embed with this ID`)
 
         /*if (webhook.startsWith("https://discord.com/api/webhooks/")) {
             webhook = webhook.split("/")[5]; // resolve link
