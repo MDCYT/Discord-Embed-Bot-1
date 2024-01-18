@@ -22,7 +22,7 @@ module.exports = class EchoSlash extends Slash {
             .addStringOption((option) =>
               option
                 .setName("id")
-                .setDescription("ID del embed que deseas usar")
+                .setDescription("ID o ID's del embed que deseas usar")
                 .setRequired(true)
             )
             .addStringOption((option) =>
@@ -45,8 +45,12 @@ module.exports = class EchoSlash extends Slash {
                 .setName("avatar")
                 .setDescription("Aqui puedes poner el avatar que saldra en el webhook")
                 .setRequired(false)
-
-
+            )
+            .addAttachmentOption((option) =>
+              option
+                .setName("attachment")
+                .setDescription("Aqui puedes poner el archivo que saldra en el mensaje dcel webhook")
+                .setRequired(false)
             )
         )
     });
@@ -58,10 +62,13 @@ module.exports = class EchoSlash extends Slash {
 
     switch (type_message) {
       case "send": {
-        let embed_id = options.getString("id");
+        let embed_id = options.getString("id").split(",");
         let ch = options.getChannel("channel");
         let username = options.getString("username") || interaction.user.username
         let avatar = options.getAttachment("avatar")
+        
+        let attachment = options.getAttachment("attachment")
+
         var avatarUrl = "";
         if (avatar && avatar.contentType === "image/png") {
           avatarUrl = avatar.url;
@@ -70,11 +77,21 @@ module.exports = class EchoSlash extends Slash {
 
 
         const webhooks = await interaction.guild.fetchWebhooks()
-        //if (webhook) webhook = webhook.toLowerCase();
-        const embed_Data = await selectRow(embed_id)
+        
+        let embeds = [];
+        for await (var embed of embed_id){
+          const embed_Data = (await selectRow(embed.trim()))[0]
 
-        if (!embed_Data[0])
-          return interaction.editReply(`Can't find embed with ID: ${embed_id}, please use \`/embed create ${embed_id}\` to create the embed with this ID`)
+          console.log(embed_Data)
+
+          if(embed_Data) {
+            embeds.push(new EmbedBuilder(embed_Data.json));
+          }
+            
+          }
+        console.log(embeds)
+        if (!embeds[0] && !message && !attachment)
+          return interaction.editReply(`No hay embeds, verifica que la ID o ID's son correctas.`)
 
         /*if (webhook.startsWith("https://discord.com/api/webhooks/")) {
             webhook = webhook.split("/")[5]; // resolve link
@@ -99,11 +116,11 @@ module.exports = class EchoSlash extends Slash {
           })
           // message.reply("Creé un webhook con la ID " + web.id + " - lo podrás usar más tarde para el tercer argumento.")
         }
-        const embed = new EmbedBuilder(embed_Data[0].json)
         await web.edit({
           channel: ch
         })
-        const finalWebhook = await web.send({ embeds: [embed], content: message || "", username: username ? username : web.name, avatarURL: avatarUrl ? avatarUrl : web.avatar });
+        console.log(attachment)
+        const finalWebhook = await web.send({ embeds, content: message || "", username: username ? username : web.name, avatarURL: avatarUrl ? avatarUrl : web.avatar, files: attachment ? [attachment]: undefined });
         interaction.editReply(`[Mensaje enviado](https://discord.com/channels/${finalWebhook.guildId}/${finalWebhook.channelId}/${finalWebhook.id})`)
 
       };

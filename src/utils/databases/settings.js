@@ -627,29 +627,6 @@ module.exports = {
         }
     },
 
-    async selectMessageDeleteLogId(guildID) {
-        try {
-            return (await Guild.findOne({
-                guildID: guildID
-            }, {
-                messageDeleteLogID: 1
-            })).messageDeleteLogID;
-        } catch (error) {
-            __Client.logger.error(error);
-        }
-    },
-    async updateMessageDeleteLogId(messageDeleteLogID, guildID) {
-        try {
-            return await Guild.updateOne({
-                guildID: guildID
-            }, {
-                messageDeleteLogID: messageDeleteLogID
-            });
-        } catch (error) {
-            __Client.logger.error(error);
-        }
-    },
-
     async selectMessageEditLogId(guildID) {
         try {
             return (await Guild.findOne({

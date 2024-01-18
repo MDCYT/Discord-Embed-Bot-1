@@ -158,8 +158,8 @@ module.exports = class EchoSlash extends Slash {
             const desc = option.description ? {} : { description: option.description };
             const emoji = option.emoji ? {} : { emoji: option.emoji };
             options.push({
-              //...desc,
-              //...emoji,
+              ...desc,
+              ...emoji,
               label: option.title,
               value: `customevents_:${option.event_id}`,
             })

@@ -143,10 +143,11 @@ module.exports = class EchoSlash extends Slash {
       return { embeds: embed ? [embed] : [], content: `\`Embed: ${name || 'sin definir'}\` - ${this.res.get(name) ? `Caduca:  <t:${this.res.get(name)?.expirteIn}:R>` : 'Caduca: `caducado`'}`, components: this.addSwagComponents(embed, name) };
     }
 
-    this.onBadMsg = async function (client, name) {
+    this.onBadMsg = async function (client, name, interaction69) {
       client.logger.info('Caducó');
       client.off(Events.InteractionCreate, this.res.get(name)._handlerInteraction);
       this.res.set(name, undefined);
+      interaction.editReply(this.baseData(interaction69.message.embeds[0], name));
     }
 
     this.onMenuInteraction = async function (interaction, name, embed) {
@@ -369,15 +370,15 @@ module.exports = class EchoSlash extends Slash {
     }
 
     this.miniInteractionHandler = async function (interaction2, name, embed) {
-      if(!interaction2.customId) return;
+      if (!interaction2.customId) return;
       const [interactionType, interactionName] = interaction2.customId.split('_');
 
       if (!interactionName === name) return; // niz note: im not too much sure, but ola
       if (interaction2.isButton()) {
         switch (interactionType) {
           case 'cancel': {
-            this.onBadMsg(global.Client, name);
-            interaction.reply({ content: 'Cancelado!', ephemeral: true });
+            this.onBadMsg(global.Client, name, interaction2);
+            interaction2.reply({ content: 'Cancelado!', ephemeral: true });
 
             break;
           }
@@ -385,11 +386,14 @@ module.exports = class EchoSlash extends Slash {
             if (this.res.get(name).type !== 'edit') { await createEmbed(name, embed.toJSON()); }
             else { await editEmbed(name, embed.toJSON()); }
 
+            this.onBadMsg(global.Client, name, interaction2);
+
             interaction2.reply({ content: 'Guardado!', ephemeral: true });
             break;
           }
           case 'delete': {
             delecteRow(name);
+            this.onBadMsg(global.Client, name, interaction2);
             interaction2.reply({ content: 'Borrado!', ephemeral: true });
             break;
           }
@@ -482,7 +486,7 @@ module.exports = class EchoSlash extends Slash {
 
           for (let i = 1; i < 6; i++) {
             console.log('field_' + i + '_name');
-            if (interaction.fields.fields.get('field_' + (i) + '_name').value) {
+            if (interaction2.fields.fields.get('field_' + (i) + '_name').value) {
               fields.push({
                 name: interaction2.fields.fields.get('field_' + i + '_name').value || `Nombre no valido`,
                 value: copyOfFields[i - 1]?.value || `Descripcion no valida`,
@@ -560,7 +564,7 @@ module.exports = class EchoSlash extends Slash {
         if (checkEmbeds) {
           embed.setTitle('Fallo al crear')
             .setDescription(`Ya hay un embed con la ID: \`${name}\` porfavor use \`/embed edit ${name}\` para editarlo.`)
-            .setThumbnail(message.author.avatarURL())
+            .setThumbnail(interacion.user.avatarURL())
             .setColor('Random')
             .setTimestamp();
 
@@ -579,7 +583,7 @@ module.exports = class EchoSlash extends Slash {
             .setTimestamp();
         }
 
-        if(!embed.data.description) embed.setDescription("Embed Vacio")
+        if (!embed.data.description) embed.setDescription("Embed Vacio")
 
         await interaction.editReply(this.baseData(embed, name));
 
@@ -639,17 +643,17 @@ module.exports = class EchoSlash extends Slash {
            * @param {Interaction} interaction
            */
         const handler = async (interaction) => {
+          if (!interaction.isButton()) return;
           const [interactionType, interactionName] = interaction.customId.split('_');
-          if (!interaction.isButton() && interactionName !== sawagID) return;
+          if (interactionName !== sawagID) return;
           switch (interactionType) {
             case '<-':
-              console.log(name);
               await showByINDEX(String(Number(name) - 1));
               interaction.reply({ content: 'Cambio el index a: ' + String(Number(name)), ephemeral: true });
 
               break;
             case 'cancel':
-              client.off(Events.InteractionCreate, handler);
+              interaction.client.off(Events.InteractionCreate, handler);
               interaction.reply({ content: 'Cancelado', ephemeral: true });
 
               msg.edit('Caduca: `Caducado`');
@@ -704,7 +708,6 @@ module.exports = class EchoSlash extends Slash {
           embed = new EmbedBuilder(embedData[0].json);
           interaction.client.on(Events.InteractionCreate, _handlerInteraction);
           setTimeout(() => {
-            console.log("Hola")
             this.onBadMsg(msg, client, name);
           }, (200_00 * 60));
           interaction.editReply(this.baseData(embed, name));

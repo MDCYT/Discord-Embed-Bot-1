@@ -1,7 +1,6 @@
 const Slash = require("../Slash.js");
-const { EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, Events, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
-const { v4: uuidv4 } = require('uuid');
-const { createEmbed, selectRow, editEmbed, formatData, delecteRow, showAllEmbeds } = require('../../utils/databases/embeds.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
+require('../../utils/databases/embeds.js');
 
 module.exports = class EchoSlash extends Slash {
   constructor(client) {
@@ -39,7 +38,7 @@ module.exports = class EchoSlash extends Slash {
          .addSubcommand((subcommand) =>
           subcommand
             .setName("addevent")
-            .setDescription("Añade un boton de link a un mensaje enviado por algun webhook hecho por el bot.")
+            .setDescription("Añade un boton de evento (Mensaje o rol) a un mensaje enviado por algun webhook hecho por el bot.")
             .addStringOption((option) =>
               option
                 .setName("message_url")
@@ -60,7 +59,25 @@ module.exports = class EchoSlash extends Slash {
                 .setName("emoji")
                 .setDescription("ID o emoji que deseas usar.")
                 .setRequired(false)
-            )
+            ).addStringOption((option) =>
+            option
+              .setName("color")
+              .setDescription("Color del boton.")
+              .setRequired(false)
+              .setChoices({
+                name: "Azul",
+                value: "Primary"
+              }, {
+                name: "Gris",
+                value: "Secondary"
+              }, {
+                name: "Verde",
+                value: "Success"
+              }, {
+                name: "Rojo",
+                value: "Danger"
+              })
+          )
         )
         .addSubcommand((subcommand) =>
           subcommand
@@ -88,7 +105,7 @@ module.exports = class EchoSlash extends Slash {
     });
   }
 
-  async run(interaction, client) {
+  async run(interaction) {
     const options = interaction.options;
     const type_message = options._subcommand;
     var web = undefined;
@@ -99,6 +116,8 @@ module.exports = class EchoSlash extends Slash {
         let name = options.getString("name");
         let evId = options.getString("event_id");
         let emoji = options.getString("emoji");
+        let color = options.getString("color") || "Primary";
+
         // Check if message_url is something like https://discord.com/channels/1187757312480383097/1187757313205993582/1194879261371277362
         // Create regex
         const regex = /^https:\/\/(?:\w+\.)?discord\.com\/channels\/(\d+)\/(\d+)\/(\d+)$/
@@ -136,7 +155,7 @@ module.exports = class EchoSlash extends Slash {
           const button = new ButtonBuilder()
             .setLabel(name)
             .setCustomId('customevents_:' + evId)
-            .setStyle(ButtonStyle.Success)
+            .setStyle(ButtonStyle[color])
            if (emoji)
              button.setEmoji(emoji)
           actionRow.addComponents(
