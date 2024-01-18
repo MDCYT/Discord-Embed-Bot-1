@@ -9,6 +9,7 @@ module.exports = class GitHubCommand extends Command {
 			usage: 'github',
 			description: 'Displays the link to Any Bot\'s GitHub repository.',
 			type: client.types.INFO,
+			disabled: true,
 		});
 	}
 	run(message) {

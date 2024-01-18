@@ -16,6 +16,7 @@ module.exports = class SendCmd extends Command {
 			usage: 'send <channel> <embed_id> <webhook-id>',
 			description: 'Displays the link to Any Bot\'s GitHub repository.',
 			type: client.types.INFO,
+            disabled: true,
 		});
 	}
     /**
@@ -33,8 +34,8 @@ module.exports = class SendCmd extends Command {
          * @type {Channel}
          */
         const channel = message.mentions.channels.first() || message.channel;
-        const webhooks = await channel.fetchWebhooks()
         if (!channel) return message.reply("No hay chanel we");
+        const webhooks = await channel.fetchWebhooks()
         if (!embed_id) return message.reply("No hay embed_id we");
         //if (webhook) webhook = webhook.toLowerCase();
         const embed_Data = await selectRow(embed_id)

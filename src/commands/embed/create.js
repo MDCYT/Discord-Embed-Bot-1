@@ -13,6 +13,7 @@ module.exports = class EmbedCommand extends Command {
 			usage: 'embed <commando> <nombre> <base>',
 			description: 'Aqui se crea el embed (Si).',
 			type: client.types.INFO,
+			disabled: true,
 		});
 	}
 	/**

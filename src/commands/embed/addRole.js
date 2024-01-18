@@ -16,6 +16,7 @@ module.exports = class SendCmd extends Command {
 			usage: 'add <comando> <...args>',
 			description: 'Displays the link to Any Bot\'s GitHub repository.',
 			type: client.types.INFO,
+            disabled: true,
 		});
 	}
     /**
