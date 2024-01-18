@@ -243,11 +243,8 @@ module.exports = class EchoSlash extends Slash {
 
         await webhooks.forEach(async webHok => {
           if (webHok.owner.id === interaction.client.user.id) {
-            if (!web) {
-              web = webHok;
-            } else {
-              await webHok.delete()
-            }
+            if (!web) web = webHok;
+            else await webHok.delete()
           }
         })
 
