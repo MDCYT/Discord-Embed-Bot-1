@@ -542,7 +542,7 @@ module.exports = class EchoSlash extends Slash {
         interaction.shouldBeShowAnotherModal = false;
         this.res.set(name,
           {
-            expirteIn: Math.floor((new Date().getTime() + (200_00 * 60)) / 1000),
+            expirteIn: Math.floor((new Date().getTime() + (100_00 * 60 * 60 * 2)) / 1000),
             oldMsg: interaction,
             client,
             type,
@@ -590,7 +590,7 @@ module.exports = class EchoSlash extends Slash {
         interaction.client.on(Events.InteractionCreate, _handlerInteraction);
         setTimeout(() => {
           this.onBadMsg(client, name);
-        }, (200_00 * 60));
+        }, (100_00 * 60 * 60 * 2));
 
         break;
       }
@@ -598,7 +598,7 @@ module.exports = class EchoSlash extends Slash {
         let name = 1;
 
         const sawagID = uuidv4();
-        const content = 'Caduca: <t:' + Math.floor((new Date().getTime() + (200_00 * 60)) / 1000) + ':R>';
+        const content = 'Caduca: <t:' + Math.floor((new Date().getTime() + (100_00 * 60 * 60 * 2)) / 1000) + ':R>';
         const showByINDEX = async (name2) => {
           if (isNaN(Number(name2))) { name2 = '1'; }
           const embeds = await showAllEmbeds();
@@ -672,7 +672,7 @@ module.exports = class EchoSlash extends Slash {
         setTimeout(() => {
           client.off(Events.InteractionCreate, handler);
           interaction.editReply('Caduca: `Caducado`');
-        }, (200_00 * 60));
+        }, (100_00 * 60 * 60 * 2));
         return;
         break;
       }
@@ -682,7 +682,7 @@ module.exports = class EchoSlash extends Slash {
         if (!this.res) { this.res = new Map(); }
         this.res.set(name,
           {
-            expirteIn: Math.floor((new Date().getTime() + (200_00 * 60)) / 1000),
+            expirteIn: Math.floor((new Date().getTime() + (100_00 * 60 * 60 * 2)) / 1000),
             oldMsg: interaction,
             client,
             type: "edit",
@@ -709,7 +709,7 @@ module.exports = class EchoSlash extends Slash {
           interaction.client.on(Events.InteractionCreate, _handlerInteraction);
           setTimeout(() => {
             this.onBadMsg(msg, client, name);
-          }, (200_00 * 60));
+          }, (100_00 * 60 * 60 * 2));
           interaction.editReply(this.baseData(embed, name));
 
 

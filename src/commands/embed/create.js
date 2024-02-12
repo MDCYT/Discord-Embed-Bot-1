@@ -48,7 +48,7 @@ module.exports = class EmbedCommand extends Command {
 		message.shouldBeShowAnotherModal = false;
 		this.res.set(name,
 			{
-				expirteIn: Math.floor((new Date().getTime() + ((200_00 * 60))) / 1000),
+				expirteIn: Math.floor((new Date().getTime() + ((100_00 * 60 * 60 * 2))) / 1000),
 				oldMsg: message,
 				client,
 				args,
@@ -62,7 +62,7 @@ module.exports = class EmbedCommand extends Command {
 		switch (type) {
 			case 'all': {
 				const sawagID = uuidv4();
-				const content = 'Caduca: <t:' + Math.floor((new Date().getTime() + ((200_00 * 60))) / 1000) + ':R>';
+				const content = 'Caduca: <t:' + Math.floor((new Date().getTime() + ((100_00 * 60 * 60 * 2))) / 1000) + ':R>';
 				if (!name) name = '1';
 				const showByINDEX = async (name2) => {
 					if (isNaN(Number(name2))) { name2 = '1'; }
@@ -137,7 +137,7 @@ module.exports = class EmbedCommand extends Command {
 				setTimeout(() => {
 					client.off(Events.InteractionCreate, handler);
 					msg.edit('Caduca: `Caducado`');
-				}, (200_00 * 60));
+				}, (100_00 * 60 * 60 * 2));
 				return;
 			}
 			default: {
@@ -189,7 +189,7 @@ module.exports = class EmbedCommand extends Command {
 						client.on(Events.InteractionCreate, _handlerInteraction);
 						setTimeout(() => {
 							this.onBadMsg(msg, client, name);
-						}, (200_00 * 60));
+						}, (100_00 * 60 * 60 * 2));
 					}
 					else {
 						this.res.set(name, undefined);
@@ -248,7 +248,7 @@ module.exports = class EmbedCommand extends Command {
 					client.on(Events.InteractionCreate, _handlerInteraction);
 					setTimeout(() => {
 						this.onBadMsg(msg, client, name);
-					}, (200_00 * 60));
+					}, (100_00 * 60 * 60 * 2));
 					break;
 				}
 		}
