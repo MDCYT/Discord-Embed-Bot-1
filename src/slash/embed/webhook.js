@@ -120,7 +120,7 @@ module.exports = class EchoSlash extends Slash {
           channel: ch
         })
         console.log(attachment)
-        const finalWebhook = await web.send({ embeds, content: message || "", username: username ? username : web.name, avatarURL: avatarUrl ? avatarUrl : web.avatar, files: attachment ? [attachment]: undefined });
+        const finalWebhook = await web.send({ embeds, content: message || "", username: username ? username : web.name, avatarURL: avatarUrl ? avatarUrl : web.avatarURL(), files: attachment ? [attachment]: undefined });
         interaction.editReply(`[Mensaje enviado](https://discord.com/channels/${finalWebhook.guildId}/${finalWebhook.channelId}/${finalWebhook.id})`)
 
       };
