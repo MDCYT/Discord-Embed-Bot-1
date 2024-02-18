@@ -346,18 +346,18 @@ module.exports = class EmbedCommand extends Command {
 				const fields = [];
 
 				for (let i = 1; i < 6; i++) {
-					console.log('field_' + i   + '_inline');
-					if (copyOfFields[i - 1] && copyOfFields[i-1].name) {
+					console.log('field_' + i + '_inline');
+					if (copyOfFields[i - 1] && copyOfFields[i - 1].name) {
 						fields.push({
-							name: copyOfFields[i-1]?.name || `Nombre no valido`,
-							value: copyOfFields[i-1]?.description  || `Descripcion no valida`,
-							inline: interaction.fields.fields.get('field_' + (i)  + '_inline').value.startsWith("s")
+							name: copyOfFields[i - 1]?.name || `Nombre no valido`,
+							value: copyOfFields[i - 1]?.description || `Descripcion no valida`,
+							inline: interaction.fields.fields.get('field_' + (i) + '_inline').value.startsWith("s")
 						})
-					} 
+					}
 				}
 				embed.setFields(fields)
 				break;
-			
+
 			}
 			case "fieldsdescription": {
 				var copyOfFields = [];
@@ -366,18 +366,18 @@ module.exports = class EmbedCommand extends Command {
 				const fields = [];
 
 				for (let i = 1; i < 6; i++) {
-					console.log('field_' + i   + '_description');
-					if (interaction.fields.fields.get('field_' + (i)  + '_description').value ) {
+					console.log('field_' + i + '_description');
+					if (interaction.fields.fields.get('field_' + (i) + '_description').value) {
 						fields.push({
-							name: copyOfFields[i-1]?.name || `Nombre no valido`,
-							value: interaction.fields.fields.get('field_' + i  + '_description').value || `Descripcion no valida`,
-							inline: copyOfFields[i-1]?.inline
+							name: copyOfFields[i - 1]?.name || `Nombre no valido`,
+							value: interaction.fields.fields.get('field_' + i + '_description').value || `Descripcion no valida`,
+							inline: copyOfFields[i - 1]?.inline
 						})
-					} 
+					}
 				}
 				embed.setFields(fields)
 				break;
-			
+
 			}
 			case 'fieldstitle': {
 				var copyOfFields = [];
@@ -386,14 +386,14 @@ module.exports = class EmbedCommand extends Command {
 				const fields = [];
 
 				for (let i = 1; i < 6; i++) {
-					console.log('field_' + i   + '_name');
-					if (interaction.fields.fields.get('field_' + (i)  + '_name').value) {
+					console.log('field_' + i + '_name');
+					if (interaction.fields.fields.get('field_' + (i) + '_name').value) {
 						fields.push({
-							name: interaction.fields.fields.get('field_' + i  + '_name').value || `Nombre no valido`,
-							value: copyOfFields[i-1]?.value|| `Descripcion no valida`,
-							inline: copyOfFields[i-1]?.inline
+							name: interaction.fields.fields.get('field_' + i + '_name').value || `Nombre no valido`,
+							value: copyOfFields[i - 1]?.value || `Descripcion no valida`,
+							inline: copyOfFields[i - 1]?.inline
 						})
-					} 
+					}
 				}
 				embed.setFields(fields)
 
@@ -588,7 +588,7 @@ module.exports = class EmbedCommand extends Command {
 							.setMaxLength(256)
 							.setRequired(false)))
 					}
-		this.res.get(name).oldMsg.shouldBeShowAnotherModal = true;
+					this.res.get(name).oldMsg.shouldBeShowAnotherModal = true;
 
 					await interaction.showModal(modal);
 					break;
@@ -597,7 +597,7 @@ module.exports = class EmbedCommand extends Command {
 					const modal = new ModalBuilder()
 						.setCustomId('fieldsdescription_' + name)
 						.setTitle('Aqui pon tus descripciones')
-						if (!embed.data.fields) embed.data.fields = [];
+					if (!embed.data.fields) embed.data.fields = [];
 
 					for (let i = 0; i < 5; i++) {
 						modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder()
@@ -617,17 +617,17 @@ module.exports = class EmbedCommand extends Command {
 					const modal = new ModalBuilder()
 						.setCustomId('fieldsinline_' + name)
 						.setTitle('Aqui pon si quieres apilar los columnas')
-						if (!embed.data.fields) embed.data.fields = [];
+					if (!embed.data.fields) embed.data.fields = [];
 
 					for (let i = 0; i < 5; i++) {
 						modal.addComponents(new ActionRowBuilder().addComponents(new TextInputBuilder()
 							.setCustomId(`field_${i + 1}_inline`)
 							.setLabel(`Aqui si la columna se ${i + 1} debe apilar`)
 							.setStyle(TextInputStyle.Paragraph)
-							.setValue(embed.data.fields[i]?.inline ?  `si` : `no`)
+							.setValue(embed.data.fields[i]?.inline ? `si` : `no`)
 							.setMaxLength(1024)
 							.setRequired(false)))
-							
+
 					}
 
 					await interaction.showModal(modal);
