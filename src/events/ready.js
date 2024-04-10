@@ -5,9 +5,6 @@ const {
   Routes
 } = require("discord-api-types/v9");
 const {
-  abbreviateNumber
-} = require("js-abbreviation-number");
-const {
   insertRow,
   selectRow,
   updateRow
@@ -33,7 +30,7 @@ module.exports = {
 
       },
     ];
-    await ["can_send_embeds", "set_buttons", "can_edit_or_create"].forEach(async ID=>{
+    ["can_send_embeds", "set_buttons", "can_edit_or_create"].forEach(async ID=>{
       client.logger.info("Initing rol " + ID);
       const dbdata = await selectRow(ID);
         if (dbdata.length < 1)
