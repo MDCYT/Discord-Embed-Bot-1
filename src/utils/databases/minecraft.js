@@ -72,6 +72,20 @@ const MinecraftServer = mongoose.model(
 );
 
 module.exports = {
+    async editMinecraftServer(GuildID, data) {
+        const embed = await MinecraftServer.findOneAndUpdate({ GuildID: GuildID }, data, { new: true });
+        return embed;
+    },
+    async createMinecraftServer(GuildID, data) {
+        data.GuildID = GuildID;
+        // check if has one already
+        const _embed = await MinecraftServer.findOne({ ServerDomain: data.ServerDomain, ServerPort: data.ServerPort});
+        if (_embed) {
+            return "no";
+        }
+        const embed = new MinecraftServer(data);
+        return await embed.save();
+    },
     async insertMinecraftConfigRow(GuildID, ChannelID, MessageID, ThreadID, EmbedsID = []) {
         const embed = new MinecraftConfig({ GuildID: GuildID, ChannelID: ChannelID, MessageID: MessageID, ThreadID: ThreadID, EmbedsID: EmbedsID });
         return await embed.save();

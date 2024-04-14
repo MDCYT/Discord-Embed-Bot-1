@@ -96,6 +96,7 @@ module.exports = {
    * @returns 
    */
   async execute(interaction, client) {
+    
     this.onCustomEv = async (id) => {
       const event = (await events.selectRow(id))[0].events;
       for (let ev of event) {
@@ -160,18 +161,24 @@ module.exports = {
           ServerDiscord: interaction.fields.fields.get("discord_invite")?.value ?? "",
           Java: type === "java"
         }
+        const save = MinecraftConfig.createMinecraftServer(guildId, serverValues)
+        if (save == 'no')
+          {
+            interaction.reply({ ephemeral: true, content: "Ya existe este servidor" })
+            return;
+          }
       /**
        * @type {TextChannel} 
        */
       const channel = interaction.channel.parent;
         
         
-    
+      await interaction.deferReply({ephemeral: true});
       const data = await getMinecraftInfoByServer(serverValues, interaction)
       if (data.isError) {
         delete data.isError;
         delete data.serverStatus;
-        interaction.reply({ ephemeral: true, ...data})
+        interaction.editReply({ ephemeral: true, ...data})
         return;
       }
       delete data.isError;
@@ -189,7 +196,7 @@ module.exports = {
         serverValues.ThreadID = post.id;
         
         console.log(`ola` );
-        interaction.reply({ ephemeral: true, content: "Server creado en " + `<#${post.id}>`})
+        interaction.editReply({ ephemeral: true, content: "Server creado en " + `<#${post.id}>`})
       }
       // creating new minecraft server at the command interaction
       // new-minecraft-{type=java/bedrock}-{guildId=string we}
