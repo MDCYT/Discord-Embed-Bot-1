@@ -58,7 +58,7 @@ module.exports = class EchoSlash extends Slash {
                 // Create a Post, and lock it
                 const post = await channel.threads.create({
                     name: "Minecraft Server",
-                    autoArchiveDuration: ThreadAutoArchiveDuration.OneDay,
+                    autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
                     reason: "Minecraft Server",
                     message: {
                         content: "Minecraft Server",

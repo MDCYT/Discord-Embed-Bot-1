@@ -38,6 +38,10 @@ const MinecraftServer = mongoose.model(
                 required: true,
                 unique: true
             },
+            Java: {
+                type: Boolean,
+                required: true
+            },
             ThreadID: {
                 type: String,
                 required: true,
@@ -106,6 +110,11 @@ module.exports = {
             console.log(`deleting ${bad.GuildID}`)
             await bad.deleteOne();
         }
+    },
+    async getMinecraftChannelId(guildId) {
+        console.log(guildId)
+        const embed = (await MinecraftConfig.findOne({ GuildId: guildId }));
+        return embed?.ChannelID || "";
     },
 
     async selectMinecraftConfigRow(guildID) {
