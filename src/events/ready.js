@@ -9,6 +9,8 @@ const {
   selectRow,
   updateRow
 } = require("../utils/databases/roles");
+const cron = require("node-cron");
+
 const { Client, ActivityType } = require("discord.js");
 module.exports = {
   name: "ready",
@@ -129,8 +131,22 @@ module.exports = {
         client.logger.error("Failed to update slash commands!");
       }
     })();
+    // cron every 6 hours
+    cron.schedule("0 */6 * * *", async () => {
+      const Minecraft = require("../utils/databases/minecraft")
+      const allservers = await Minecraft.showAllMinecraftServerRows();
+      for (let server of allservers) {
+        const guild = client.guilds.cache.get(server.guild_id);
+        setTimeout(() => {
+        client.emit("updatedMinecraftServer", server, guild, ()=>{
+          console.log("Finished")
+        })
+      }, 3000 * allServers.indexOf(server));
+    }
+    });
 
     client.logger.info("Updating database and scheduling jobs...");
+
     for await (const guild of client.guilds.cache.values()) {
 
       // if((guild.id === "374071874222686211") || (guild.id === "992960423081037925")) continue;

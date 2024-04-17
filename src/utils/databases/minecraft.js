@@ -30,13 +30,25 @@ const MinecraftConfig = mongoose.model(
 );
 
 const MinecraftServer = mongoose.model(
-    "MinecraftServer",
+    "mcServer",
     new mongoose.Schema(
         {
             GuildID: {
                 type: String,
                 required: true,
                 unique: true
+            }, 
+            User: {
+                type: {
+                    id: String,
+                    name: String,
+                    avatar: String
+                },
+                required: true
+            },
+            MessageID: {
+                type: String,
+                required: true
             },
             Java: {
                 type: Boolean,
@@ -72,15 +84,23 @@ const MinecraftServer = mongoose.model(
 );
 
 module.exports = {
+    MinecraftConfig,
+    MinecraftServer,
     async editMinecraftServer(GuildID, data) {
         const embed = await MinecraftServer.findOneAndUpdate({ GuildID: GuildID }, data, { new: true });
         return embed;
     },
+    async hasMinecraftServer(GuildID, ServerDomain, ServerPort) {
+        const embed = await MinecraftServer.findOne({ GuildID: GuildID, ServerDomain: ServerDomain, ServerPort: ServerPort });
+        return embed._id !== undefined ? true : false;
+    },
+
     async createMinecraftServer(GuildID, data) {
         data.GuildID = GuildID;
         // check if has one already
-        const _embed = await MinecraftServer.findOne({ ServerDomain: data.ServerDomain, ServerPort: data.ServerPort});
-        if (_embed) {
+        const _embed =await MinecraftServer.exists({ ServerDomain: data.ServerDomain, ServerPort: data.ServerPort })
+       console.log(_embed)
+        if (_embed._id !== undefined) {
             return "no";
         }
         const embed = new MinecraftServer(data);
@@ -141,7 +161,7 @@ module.exports = {
         return await embed.save();
     },
 
-    async updateMinecraftServerRow(GuildID, {
+    async updatedMinecraftServerRow(GuildID, {
         ServerDomain,
         ServerPort,
         ServerName,
