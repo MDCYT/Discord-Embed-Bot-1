@@ -6,8 +6,7 @@ const MinecraftConfig = mongoose.model(
         {
             GuildID: {
                 type: String,
-                required: true,
-                unique: true
+                required: true
             },
             ChannelID: {
                 type: String,
@@ -35,8 +34,7 @@ const MinecraftServer = mongoose.model(
         {
             GuildID: {
                 type: String,
-                required: true,
-                unique: true
+                required: true
             }, 
             User: {
                 type: {
@@ -100,7 +98,7 @@ module.exports = {
         // check if has one already
         const _embed =await MinecraftServer.exists({ ServerDomain: data.ServerDomain, ServerPort: data.ServerPort })
        console.log(_embed)
-        if (_embed._id !== undefined) {
+        if (_embed) {
             return "no";
         }
         const embed = new MinecraftServer(data);

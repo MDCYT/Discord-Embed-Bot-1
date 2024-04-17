@@ -1,4 +1,4 @@
-const { Client, EmbedBuilder,Guild } = require('discord.js');
+const { Client, EmbedBuilder,Guild, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
 const { MinecraftServer } = require('../utils/databases/minecraft');
 const util = require('minecraft-server-util');
 
@@ -65,13 +65,13 @@ async function getMinecraftInfoByServer(serverValues, user, client) {
  embed.setTitle(serverValues.ServerName)
  .setDescription(serverValues.ServerDescription)
  .setFields({
-   name: "IP",
+   name: "🔺 IP",
    value: `\`\`\`ini\n${serverValues.ServerDomain}${serverValues.ServerPort !== 0 ? `:${serverValues.ServerPort}` : ''}\`\`\``
  }, {
-   name: "version",
+   name: "🟥 Version",
    value: `\`\`\`ini\n${serverStatus.version.name==='§f'? "Version Multiple" : serverStatus.version.name}\`\`\``
  }, {
-   name: "Players",
+   name: "🔻 Jugadores",
    value: `\`\`\`ini\n${serverStatus.players.online} / ${serverStatus.players.max} (${Math.floor((serverStatus.players.online / serverStatus.players.max ) * 100) }%)\`\`\``,
  })
  .setColor("Red")
@@ -83,7 +83,7 @@ async function getMinecraftInfoByServer(serverValues, user, client) {
  
    components.push(new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("Discord").setStyle(5).setURL(serverValues.ServerDiscord)))
  }
- return {embeds, isError: false, serverStatus,components}
+ return {embeds, isError: false, content: "", serverStatus,components}
 }
 /**
  * 

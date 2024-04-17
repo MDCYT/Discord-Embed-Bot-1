@@ -53,7 +53,7 @@ module.exports = {
         
           client.emit("updatedMinecraftServer", data, guild, async ()=>{
         await MinecraftConfig.editMinecraftServer(guild.id, data);
-            interaction.editReply({content: "Server created at <#" + post.id + ">"});
+            interaction.editReply({content: "Su servidor fue agregado a la lista en <#" + post.id + ">."});
           });
     }
 }
