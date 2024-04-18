@@ -63,6 +63,31 @@ module.exports = {
 
     }
     if (interaction.customId) {
+      if (interaction.customId.startsWith("acceptMinecraftServer")) {
+        const [ip, port, msg_id, ch_id] = interaction.customId.slice("acceptMinecraftServer=".length, interaction.customId.length).split(",");
+        const createMinecraftServer = require("./createMinecraftServer");
+        await interaction.deferReply({ ephemeral: true })
+        const response = await createMinecraftServer.accept(ip, port, interaction.guild)
+        const user = interaction.guild.members.cache.get(response.user.id);
+        try {user.send({ content: "Su servidor fue aceptado :D" });} catch (e) {console.log(e)}
+        await interaction.editReply({ content: response.content })
+        const channel = interaction.guild.channels.cache.get(ch_id)
+        const msg = await channel.messages.fetch(msg_id)
+        msg.delete()
+      }
+      if (interaction.customId.startsWith("rejectMinecraftServer")) {
+        const [ip, port, msg_id, ch_id] = interaction.customId.slice("rejectMinecraftServer=".length, interaction.customId.length).split(",");
+        const createMinecraftServer = require("./createMinecraftServer");
+        await interaction.deferReply({ ephemeral: true })
+        
+        const response = await createMinecraftServer.delete(ip, port, interaction.guild)
+        const user = interaction.guild.members.cache.get(response.user.id);
+        try {user.send({ content: "Lo sentimos, su servidor fue rechazado." });} catch (e) {console.log(e)}
+        await interaction.editReply({ content: response.content })
+        const channel = interaction.guild.channels.cache.get(ch_id)
+        const msg = await channel.messages.fetch(msg_id)
+        msg.delete()
+      }
         if (interaction.customId.startsWith("peso_pluma_le_dice_a_la_pomni")) {
         const [guildId, type, userId] = interaction.customId.slice("peso_pluma_le_dice_a_la_pomni=".length, interaction.customId.length).split(",")
         const channel = interaction.channel.parent;
@@ -72,6 +97,7 @@ module.exports = {
           interaction,
           interaction.guild,
           channel,
+          
           interaction.fields.fields,
           type === "bedrock"); 
       }

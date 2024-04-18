@@ -1,5 +1,5 @@
 const { Client, EmbedBuilder,Guild, ActionRowBuilder, ButtonBuilder, ButtonStyle} = require('discord.js');
-const { MinecraftServer } = require('../utils/databases/minecraft');
+const { MinecraftServer, selectMinecraftConfigRow } = require('../utils/databases/minecraft');
 const util = require('minecraft-server-util');
 
 /**
@@ -43,9 +43,11 @@ async function getMinecraftInfoByServer(serverValues, user, client) {
    return {embeds: [embed], isError: true, serverStatus: undefined}
  }
  const imageBuffer = Buffer.from(await fetch(serverStatus.favicon).then(res => res.arrayBuffer()))
- const iconsChannel =client.guilds.cache.get(process.env.GUILD_ID).channels.cache.get(process.env.ICONCH)
+ const serverConfig = (await selectMinecraftConfigRow(serverValues.GuildID))[0];
+ const iconsChannel =client.guilds.cache.get(serverValues.GuildID).channels.cache.get(serverConfig.AcceptChannelID);
  const messageWithImage = await iconsChannel.send({
-     files: [{
+    content: "Ignora este mensaje. Se necesita para sacar el icono del servidor.",
+    files: [{
          attachment: imageBuffer,
          name: 'image.png'
      }]
@@ -61,28 +63,50 @@ async function getMinecraftInfoByServer(serverValues, user, client) {
  }
  if (imageUrl)
    embed.setThumbnail(imageUrl)
-
+var isDefaultPort = function (port) {
+    return port === 25565 || port === 19132
+}
+const vars = [
+    {
+        name: "🔺 IP",
+        value: `\`\`\`ini\n${serverValues.ServerDomain}\`\`\``
+      }
+]
+if (!isDefaultPort(serverValues.ServerPort)) {
+    vars.push({
+        name: "🟥 Puerto",
+        value: `\`\`\`ini\n${serverValues.ServerPort}\`\`\``
+    })
+}
+if (serverStatus.version.name.length > 5)
+{
+    vars.push({
+        name: "🟥 Version",
+        value: `\`\`\`ini\n${serverStatus.version.name}\`\`\``
+    })
+}
+vars.push({
+    name: "🔻 Jugadores",
+    value: `\`\`\`ini\n${serverStatus.players.online} / ${serverStatus.players.max} (${Math.floor((serverStatus.players.online / serverStatus.players.max ) * 100) }%)\`\`\``,
+  });
  embed.setTitle(serverValues.ServerName)
  .setDescription(serverValues.ServerDescription)
- .setFields({
-   name: "🔺 IP",
-   value: `\`\`\`ini\n${serverValues.ServerDomain}${serverValues.ServerPort !== 0 ? `:${serverValues.ServerPort}` : ''}\`\`\``
- }, {
-   name: "🟥 Version",
-   value: `\`\`\`ini\n${serverStatus.version.name==='§f'? "Version Multiple" : serverStatus.version.name}\`\`\``
- }, {
-   name: "🔻 Jugadores",
-   value: `\`\`\`ini\n${serverStatus.players.online} / ${serverStatus.players.max} (${Math.floor((serverStatus.players.online / serverStatus.players.max ) * 100) }%)\`\`\``,
- })
+ .setFields(vars)
  .setColor("Red")
  const components = [];
  if (!serverValues.ServerDiscord.startsWith("https://"))
  serverValues.ServerDiscord = "https://" + serverValues.ServerDiscord
- var linkIsFromDiscord = new RegExp("discord.gg|discord.com|discordapp.com").test(serverValues.ServerDiscord)
- if (serverValues.ServerDiscord && linkIsFromDiscord) {
- 
-   components.push(new ActionRowBuilder().addComponents(new ButtonBuilder().setLabel("Discord").setStyle(5).setURL(serverValues.ServerDiscord)))
- }
+ // check if is a valid invitation link format
+ var regex = /^(https:\/\/discord.gg\/|https:\/\/discord.com\/invite\/)([a-zA-Z0-9]+)$/;
+    if (regex.test(serverValues.ServerDiscord)) {
+        components.push(new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+            .setLabel("Discord")
+            .setStyle(ButtonStyle.Link)
+            .setURL(serverValues.ServerDiscord)
+        ))
+    }
  return {embeds, isError: false, content: "", serverStatus,components}
 }
 /**

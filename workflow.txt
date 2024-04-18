@@ -1,0 +1,43 @@
+----------IDEAS--------------------------
+PARA MANEJAR EL SERVER DE MINECRAFT O MAS BIEN DICHO EL CREADO DE ESTOS:
+
+1. darle al boton que se manda con el hilo del server.
+2. Se abre un modal
+3. Al terminar / Editar el modal, se verifica dos cosas, al terminar, solo verificaria si ya existe, y sino, lo anade, empujando una lista breve
+4. Al mandarlo, mandas 2 botones, uno para editar y otro para eliminar, con la customId le pones btn-edit-userid-serverid y btn-delete-userid-serverid para poder saber quien fue el baboso que lo CREADO
+5. Al darle al boton de editar, se abre de nuevo el modal, y al termianr solo se determina que esta siendo editado, de caso contrario, si se borran algunos parametros, que no sean la IP o el puerto, ignorar, si en caso que es java, puedes ignorar el puerto, pero si es bedrock, mandarle a preguntar el maldito puerto
+5.5 Realizar verificacion del server que ande vivo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

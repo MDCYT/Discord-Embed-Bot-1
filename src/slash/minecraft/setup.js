@@ -10,8 +10,9 @@ module.exports = class EchoSlash extends Slash {
             name: "minecraf",
             data: new SlashCommandBuilder().setName("minecraft").setDescription("Setea el canal de servidores de minecraft").
                 addSubcommand(subcommand =>
-                    subcommand.setName("setup").setDescription("Setea el canal de servidores de minecraft").
-                        addChannelOption(option => option.setName("channel").setDescription("El canal a usar").setRequired(true))
+                    subcommand.setName("setup").setDescription("Setea el canal de servidores de minecraft")
+                        .addChannelOption(option => option.setName("channel").setDescription("El canal a usar").setRequired(true))
+                        .addChannelOption(option => option.setName("accept_channel").setDescription("El canal para aceptar.").setRequired(true))
                         .addStringOption(option => option.setName("embeds").setDescription("Los embeds a usar").setRequired(false))
                 )
         });
@@ -25,7 +26,7 @@ module.exports = class EchoSlash extends Slash {
             case "setup":
                 let embeds_id = options.getString("embeds")?.split(",") || [];
                 const channel = options.getChannel("channel");
-
+                const accept_channel = options.getChannel("accept_channel");
                 // Check if the channel is a forum channel
                 if (channel.type !== ChannelType.GuildForum) return interaction.reply({ content: "Debes seleccionar un canal de tipo foro (Forum)", ephemeral: true });
 
@@ -85,7 +86,7 @@ module.exports = class EchoSlash extends Slash {
                 });
 
                 // Save the configuration
-                await insertMinecraftConfigRow(interaction.guildId, channel.id, post.id, post.lastMessageId, embeds_id);
+                await insertMinecraftConfigRow(interaction.guildId, channel.id, post.id, post.lastMessageId, embeds_id, accept_channel.id);
 
                 return interaction.editReply({ content: "Canal de servidores de minecraft configurado", ephemeral: true });
         }

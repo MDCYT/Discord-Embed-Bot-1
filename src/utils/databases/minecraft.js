@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const MinecraftConfig = mongoose.model(
-    "MinecraftConfig",
+    "mcConfigs",
     new mongoose.Schema(
         {
             GuildID: {
@@ -9,6 +9,10 @@ const MinecraftConfig = mongoose.model(
                 required: true
             },
             ChannelID: {
+                type: String,
+                required: true
+            },
+            AcceptChannelID: {
                 type: String,
                 required: true
             },
@@ -29,9 +33,13 @@ const MinecraftConfig = mongoose.model(
 );
 
 const MinecraftServer = mongoose.model(
-    "mcServer",
+    "mcServer2",
     new mongoose.Schema(
         {
+            Accepted: {
+                type: Boolean,
+                required: false,
+            },
             GuildID: {
                 type: String,
                 required: true
@@ -55,7 +63,6 @@ const MinecraftServer = mongoose.model(
             ThreadID: {
                 type: String,
                 required: true,
-                unique: true
             },
             ServerDomain: {
                 type: String,
@@ -104,8 +111,19 @@ module.exports = {
         const embed = new MinecraftServer(data);
         return await embed.save();
     },
-    async insertMinecraftConfigRow(GuildID, ChannelID, MessageID, ThreadID, EmbedsID = []) {
-        const embed = new MinecraftConfig({ GuildID: GuildID, ChannelID: ChannelID, MessageID: MessageID, ThreadID: ThreadID, EmbedsID: EmbedsID });
+    async insertMinecraftConfigRow(GuildID, ChannelID, MessageID, ThreadID, EmbedsID = [], AcceptChannelID) {
+        if (await MinecraftConfig.exists({ GuildID: GuildID })) {
+            return MinecraftConfig.findOneAndUpdate({ GuildID: GuildID }, {
+                GuildID: GuildID,
+                ChannelID: ChannelID,
+                MessageID: MessageID,
+                ThreadID: ThreadID,
+                EmbedsID: EmbedsID,
+                AcceptChannelID: AcceptChannelID
+            }, { new: true });
+
+        }
+        const embed = new MinecraftConfig({ GuildID: GuildID, ChannelID: ChannelID, MessageID: MessageID, ThreadID: ThreadID, EmbedsID: EmbedsID , AcceptChannelID: AcceptChannelID});
         return await embed.save();
     },
     async updateMinecraftConfigRow(GuildID, {
@@ -151,6 +169,8 @@ module.exports = {
 
     async selectMinecraftConfigRow(guildID) {
         const embed = await MinecraftConfig.find({ GuildID: guildID });
+        if (!embed) return;
+        delete embed._id;
         return embed;
     },
 
@@ -177,16 +197,16 @@ module.exports = {
         return embed;
     },
 
-    async deleteMinecraftServerRow(guildID) {
-        const embed = await MinecraftServer.find({ GuildID: guildID });
+    async deleteMinecraftServerRow(guildID, ServerDomain, ServerPort) {
+        const embed = await MinecraftServer.find({ GuildID: guildID, ServerDomain: ServerDomain, ServerPort: ServerPort});
         for (let bad of embed) {
             console.log(`deleting ${bad.GuildID}`)
             await bad.deleteOne();
         }
     },
 
-    async selectMinecraftServerRow(guildID) {
-        const embed = await MinecraftServer.find({ GuildID: guildID });
+    async selectMinecraftServerRow(GuildID, ServerDomain, ServerPort) {
+        const embed = await MinecraftServer.findOne({ GuildID, ServerDomain, ServerPort});
         return embed;
     },
 
