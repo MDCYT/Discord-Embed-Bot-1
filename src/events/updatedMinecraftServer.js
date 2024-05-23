@@ -72,7 +72,7 @@ const vars = [
         value: `\`\`\`ini\n${serverValues.ServerDomain}\`\`\``
       }
 ]
-if (!isDefaultPort(serverValues.ServerPort)) {
+if (!isDefaultPort(serverValues.ServerPort) && serverValues.ServerPort > 0 && serverValues.ServerPort <= 65535) {
     vars.push({
         name: "🟥 Puerto",
         value: `\`\`\`ini\n${serverValues.ServerPort}\`\`\``
@@ -107,7 +107,7 @@ vars.push({
             .setURL(serverValues.ServerDiscord)
         ))
     }
- return {embeds, isError: false, content: "", serverStatus,components}
+ return {embeds, isError: false, serverStatus,components, content: `${process.env.emojiMinecraftPlayer} ${serverStatus.players.online} / ${serverStatus.players.max}`};
 }
 /**
  * 
@@ -151,6 +151,12 @@ module.exports = {
         delete data.isError;
         delete data.serverStatus;
         await message.edit(data);
+        // Send a message to the same channel/thread, and delete after 1 second after the message is sent
+        await channel.send("Actualizado correctamente").then(msg => {
+            setTimeout(() => {
+                msg.delete();
+            }, 1000);
+        });
         console.log("Updated server: " + server.ServerDomain + ":" + server.ServerPort)
         if (finishCallBack) finishCallBack();
     }
