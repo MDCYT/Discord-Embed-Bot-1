@@ -48,36 +48,10 @@ module.exports = {
 
     // Update presence
     client.user.setActivity({
-      name: "Test",
-      type: ActivityType.Playing
+		name: "en BoolyOficial",
+        type: ActivityType.Streaming,
+      	url: "https://www.twitch.tv/boolyoficial"
     })
-   
-
-    let activity = 1;
-
-    setInterval(() => {
-      activities[2] = {
-        name: `${client.guilds.cache.size} servers`,
-        type: ActivityType.Whatching
-
-      }; // Update server count
-      activities[3] = {
-        name: `with ${client.commands.size} commands`,
-        type: ActivityType.Playing
-
-      }; // Update command count
-
-      if (activity >= activities.length) activity = 0;
-      
-      client.user.setPresence({
-        activities: [activities[activity]],
-        status: "afk"
-      }
-      
-      );
-  
-      activity++;
-    }, 30000);
 
   /*  if(client.statsChannels.guilds_channel) { // SHHHH
     setInterval(

@@ -146,18 +146,49 @@ module.exports = class EchoSlash extends Slash {
           }
         })
         if (!web) {
-          web = await ch.createWebhook({
-            name: interaction.user.username,
-            avatar: interaction.user.avatarURL()
-          })
+          if (ch.isThread()) {
+
+            web = await ch.parent.createWebhook({
+              name: interaction.user.username,
+              avatar: interaction.user.avatarURL()
+            })
+          } else {
+            web = await ch.createWebhook({
+              name: interaction.user.username,
+              avatar: interaction.user.avatarURL()
+            })
+          }
+
           // message.reply("Creé un webhook con la ID " + web.id + " - lo podrás usar más tarde para el tercer argumento.")
         }
-        await web.edit({
-          channel: ch
-        })
-        console.log(attachment)
-        const finalWebhook = await web.send({ embeds, content: message || "", username: username ? username : web.name, avatarURL: avatarUrl ? avatarUrl : web.avatarURL(), files: attachment ? [attachment] : undefined });
-        interaction.editReply(`[Mensaje enviado](https://discord.com/channels/${finalWebhook.guildId}/${finalWebhook.channelId}/${finalWebhook.id})`)
+
+        // check if ch is a text channel
+        if (!ch.isTextBased() && !ch.isThread()) {
+
+          await web.edit({
+            channel: ch
+          })
+        } else if (ch.isThread()) {
+          await web.edit({
+            channel: ch.parent
+          })
+        }
+
+        console.log(web)
+        try {
+          let finalWebhook;
+          if (ch.isTextBased() && !ch.isThread()) {
+            finalWebhook = await web.send({ embeds, content: message || "", username: username ? username : web.name, avatarURL: avatarUrl ? avatarUrl : web.avatarURL(), files: attachment ? [attachment] : undefined });
+          } else {
+            finalWebhook = await web.send({ threadId: ch.id, embeds, content: message || "", username: username ? username : web.name, avatarURL: avatarUrl ? avatarUrl : web.avatarURL(), files: attachment ? [attachment] : undefined});
+          }
+
+          interaction.editReply(`[Mensaje enviado](https://discord.com/channels/${finalWebhook.guildId}/${finalWebhook.channelId}/${finalWebhook.id})`)
+
+        } catch (error) {
+          console.log(error)
+          interaction.editReply("No se pudo enviar el mensaje.")
+        }
         break;
       };
 
