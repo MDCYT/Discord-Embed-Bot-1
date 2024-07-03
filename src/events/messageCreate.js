@@ -156,6 +156,7 @@ module.exports = {
 		} else if (
 			(message.mentions.users.has(message.client.id) || message.mentions.users.has(client.id)) && (process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId))
 		) {
+			console.log("AI")
 			//Check if the user is on cooldown
 			if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
 				return await message.reply('Espera <t:' + Math.floor((cooldowns.get(message.author.id) + 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) / 1000) + ':R> antes de hacer otra pregunta.');
