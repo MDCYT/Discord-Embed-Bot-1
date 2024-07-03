@@ -12,6 +12,20 @@ const {
 	stripIndents,
 } = require('common-tags');
 
+
+const OpenAI = require('openai');
+
+const { createNewChat, getChatsByID } = require('../utils/databases/chatia.js');
+
+const configuration = new OpenAI.Configuration({
+  organization: process.env.OPENAI_ORG_ID,
+  apiKey: process.env.OPENAI_API_KEY,
+});
+const openai = new OpenAI.OpenAIApi(configuration);
+
+// Make a map for cooldowns
+const cooldowns = new Map();
+
 module.exports = {
 	name: 'messageCreate',
 	async execute(message, _commands, client) {
@@ -137,58 +151,74 @@ module.exports = {
 
 			}
 			else if (
-				(message.content === `<@${client.user.id}>` ||
-          message.content === `<@!${client.user.id}>`) &&
-          message.guild.members.me.permissionsIn(message.channel).has([PermissionFlagsBits.SendMessages, PermissionFlagsBits.EmbedLinks])
-        && !modChannelIds.includes(message.channel.id)
+		(message.content.includes(`<@${client.user.id}>`) || message.content.includes(`<@!${client.user.id}>`)) && message.channel.id === process.env.AI_CHANNEL
 			) {
-				const embed = new EmbedBuilder()
-					.setTitle(`Hi, I'm ${message.guild.members.me.displayName}! Need help?`)
-					.setThumbnail(client.user.displayAvatarURL())
-					.setDescription(
-						`You can see everything I can do by using the \`${prefix}help\` command.`,
-					)
-					.setFields({
-						name: 'Invite me',
-						value:  `
-            You can add me to your server by clicking 
-            [here](https://discordapp.com/oauth2/authorize?client_id=${message.guild.members.me.id}&scope=applications.commands%20bot&permissions=8)
-          `,
+				//Check if the user is on cooldown
+				if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
+						return await message.channel.reply('Espera <t:' + Math.floor((cooldowns.get(message.author.id) + 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) / 1000) + ':R> antes de hacer otra pregunta.');
+					  }
+			}
 
-					}, {
-						name: 'Support',
-						value:`
-            If you have questions, suggestions, or found a bug, please join the 
-            [${message.guild.members.me.displayName} Support Server](${message.client.supportServerInvite})
-          `,
+			//Set the user on cooldown
+			cooldowns.set(interaction.user.id, Date.now());
 
-					},
-					)
-
-					.setColor(message.guild.members.me.displayHexColor);
-
-				const linkrow = new ActionRowBuilder()
-					.addComponents(
-						new ButtonBuilder()
-							.setLabel('Invite Me')
-							.setStyle(ButtonStyle.Link)
-							.setURL(
-								`https://discordapp.com/oauth2/authorize?client_id=${message.guild.members.me.id}&scope=applications.commands%20bot&permissions=8`,
-							)
-							.setEmoji('➡'),
-					)
-					.addComponents(
-						new ButtonBuilder()
-							.setLabel('Support Server')
-							.setStyle(ButtonStyle.Link)
-							.setURL(message.client.supportServerInvite || 'https://discord.gg/dae')
-							.setEmoji('🛠️'),
-					);
-
-				// message.channel.send({
-				// 	embeds: [embed],
-				// 	components: [linkrow],
-				// });
+			var prompt = message.content;
+		
+			try {
+			  const responseModeration = await openai.createModeration({
+				engine: "text-moderation-latest",
+				input: prompt
+			  });
+			  const respuestas = ["No puedo responder a eso.", "No deberias preguntar eso.", "No tengo respuesta para eso."];
+			  //Send the response if it is not safe
+			  if (responseModeration.data.results[0].categories.hate || responseModeration.data.results[0].categories['hate/threatening']) {
+				return await message.channel.reply(respuestas[Math.floor(Math.random() * respuestas.length)]);
+			  }
+			  //Replace all mentions like <@!123456789> with the username
+			  prompt = prompt.replace(/<@!?[0-9]+>/g, (match) => {
+				const id = match.replace(/<@!?/, '').replace(/>/, '');
+				const user = message.client.users.cache.get(id);
+				return user ? user.username : match;
+			  });
+			  //Replace all mentions like <@&123456789> with the role name
+			  prompt = prompt.replace(/<@&[0-9]+>/g, (match) => {
+				const id = match.replace(/<@&/, '').replace(/>/, '');
+				const role = message.guild.roles.cache.get(id);
+				return role ? role.name : match;
+			  });
+			  //Replace all mentions like <#123456789> with the channel name
+			  prompt = prompt.replace(/<#[0-9]+>/g, (match) => {
+				const id = match.replace(/<#/, '').replace(/>/, '');
+				const channel = message.guild.channels.cache.get(id);
+				return channel ? channel.name : match;
+			  });
+		
+			  const inputSystem = fs.readFileSync(path.join(__basedir, 'src', 'utils', 'inputSystem.txt'), 'utf8').replace("%%AUTHOR%%", message.author.username).replace("%%CHANNEL_NAME%%", message.channel.name).replace("%%CHANNEL_TOPIC%%", message.channel.topic || "No hay topico definido")
+			  let lastMessages = (await getChatsByID(message.author.id + "-" + message.client.user.id, 20)).reverse();
+		
+			  let AIPersonality = fs.readFileSync(path.join(__basedir, 'src', 'utils', 'AIPersonality.json'), 'utf8')
+			  AIPersonality = JSON.parse(AIPersonality);
+			  const response = await openai.createChatCompletion({
+				model: "gpt-3.5-turbo",
+				messages: [
+				  { "role": "system", "content": inputSystem },
+				  ...AIPersonality,
+				  ...lastMessages,
+				  { "role": "user", "content": prompt },
+				],
+				user: message.author.username,
+				temperature: 1.2,
+				//If the user is boosting the server, we give them more tokens
+				max_tokens: message.member.premiumSince ? 150 : 75,
+			  });
+			  await message.channel.reply(response.data.choices[0].message.content || 'No tengo idea de lo que estas hablando.');
+			  await createNewChat(message.author.id + "-" + message.author.id, "user", prompt);
+			  await createNewChat(message.author.id + "-" + message.author.id, "assistant", response.data.choices[0].message.content);
+		
+			  return;
+			} catch (error) {
+			  console.log(error);
+			  return await message.channel.reply('Ocurrio un error al intentar responder a tu pregunta.');
 			}
 		}
 
