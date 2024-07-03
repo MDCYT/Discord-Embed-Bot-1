@@ -160,7 +160,7 @@ module.exports = {
 			}
 
 			//Set the user on cooldown
-			cooldowns.set(interaction.user.id, Date.now());
+			cooldowns.set(message.author.id, Date.now());
 
 			var prompt = message.content;
 		
