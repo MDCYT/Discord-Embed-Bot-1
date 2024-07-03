@@ -99,6 +99,9 @@ module.exports = {
 				'\\$&',
 			)})\\s*`,
 		);
+		console.log(message.content)
+		console.log((message.mentions.users.has(message.client.id) || message.mentions.users.has(client.id)))
+		console.log((process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId)))
 
 		if (prefixRegex.test(message.content)) {
 			const [, match] = message.content.match(prefixRegex);
