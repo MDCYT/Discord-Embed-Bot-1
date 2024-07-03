@@ -100,12 +100,6 @@ module.exports = {
 			)})\\s*`,
 		);
 
-		console.log(message.content)
-		console.log(message.mentions.users.has(message.client.id))
-		console.log(message.mentions.users.has(client.id))
-		console.log(message.mentions.users.has(message.client.id) || message.mentions.users.has(client.id))
-		console.log(process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId))
-
 		if (prefixRegex.test(message.content)) {
 			const [, match] = message.content.match(prefixRegex);
 			const args = message.content.slice(match.length).trim().split(/ +/g);
@@ -156,75 +150,74 @@ module.exports = {
 				return command.run(message, args, client);
 
 			}
-			else if (
-				(message.mentions.users.has(message.client.id) || message.mentions.users.has(client.id)) && (process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId))
-			) {
-				//Check if the user is on cooldown
-				if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
-					return await message.reply('Espera <t:' + Math.floor((cooldowns.get(message.author.id) + 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) / 1000) + ':R> antes de hacer otra pregunta.');
+		} else if (
+			(message.mentions.users.has(message.client.id) || message.mentions.users.has(client.id)) && (process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId))
+		) {
+			//Check if the user is on cooldown
+			if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
+				return await message.reply('Espera <t:' + Math.floor((cooldowns.get(message.author.id) + 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) / 1000) + ':R> antes de hacer otra pregunta.');
+			}
+
+			//Set the user on cooldown
+			cooldowns.set(message.author.id, Date.now());
+
+			var prompt = message.content;
+
+			try {
+				const responseModeration = await openai.createModeration({
+					engine: "text-moderation-latest",
+					input: prompt
+				});
+				const respuestas = ["No puedo responder a eso.", "No deberias preguntar eso.", "No tengo respuesta para eso."];
+				//Send the response if it is not safe
+				if (responseModeration.data.results[0].categories.hate || responseModeration.data.results[0].categories['hate/threatening']) {
+					return await message.reply(respuestas[Math.floor(Math.random() * respuestas.length)]);
 				}
+				//Replace all mentions like <@!123456789> with the username
+				prompt = prompt.replace(/<@!?[0-9]+>/g, (match) => {
+					const id = match.replace(/<@!?/, '').replace(/>/, '');
+					const user = message.client.users.cache.get(id);
+					return user ? user.username : match;
+				});
+				//Replace all mentions like <@&123456789> with the role name
+				prompt = prompt.replace(/<@&[0-9]+>/g, (match) => {
+					const id = match.replace(/<@&/, '').replace(/>/, '');
+					const role = message.guild.roles.cache.get(id);
+					return role ? role.name : match;
+				});
+				//Replace all mentions like <#123456789> with the channel name
+				prompt = prompt.replace(/<#[0-9]+>/g, (match) => {
+					const id = match.replace(/<#/, '').replace(/>/, '');
+					const channel = message.guild.channels.cache.get(id);
+					return channel ? channel.name : match;
+				});
 
-				//Set the user on cooldown
-				cooldowns.set(message.author.id, Date.now());
+				const inputSystem = fs.readFileSync(path.join(__basedir, 'src', 'utils', 'inputSystem.txt'), 'utf8').replace("%%AUTHOR%%", message.author.username).replace("%%CHANNEL_NAME%%", message.channel.name).replace("%%CHANNEL_TOPIC%%", message.channel.topic || "No hay topico definido")
+				let lastMessages = (await getChatsByID(message.author.id + "-" + message.client.user.id, 20)).reverse();
 
-				var prompt = message.content;
+				let AIPersonality = fs.readFileSync(path.join(__basedir, 'src', 'utils', 'AIPersonality.json'), 'utf8')
+				AIPersonality = JSON.parse(AIPersonality);
+				const response = await openai.createChatCompletion({
+					model: "gpt-3.5-turbo",
+					messages: [
+						{ "role": "system", "content": inputSystem },
+						...AIPersonality,
+						...lastMessages,
+						{ "role": "user", "content": prompt },
+					],
+					user: message.author.username,
+					temperature: 1.2,
+					//If the user is boosting the server, we give them more tokens
+					max_tokens: message.member.premiumSince ? 150 : 75,
+				});
+				await message.reply(response.data.choices[0].message.content || 'No tengo idea de lo que estas hablando.');
+				await createNewChat(message.author.id + "-" + message.author.id, "user", prompt);
+				await createNewChat(message.author.id + "-" + message.author.id, "assistant", response.data.choices[0].message.content);
 
-				try {
-					const responseModeration = await openai.createModeration({
-						engine: "text-moderation-latest",
-						input: prompt
-					});
-					const respuestas = ["No puedo responder a eso.", "No deberias preguntar eso.", "No tengo respuesta para eso."];
-					//Send the response if it is not safe
-					if (responseModeration.data.results[0].categories.hate || responseModeration.data.results[0].categories['hate/threatening']) {
-						return await message.reply(respuestas[Math.floor(Math.random() * respuestas.length)]);
-					}
-					//Replace all mentions like <@!123456789> with the username
-					prompt = prompt.replace(/<@!?[0-9]+>/g, (match) => {
-						const id = match.replace(/<@!?/, '').replace(/>/, '');
-						const user = message.client.users.cache.get(id);
-						return user ? user.username : match;
-					});
-					//Replace all mentions like <@&123456789> with the role name
-					prompt = prompt.replace(/<@&[0-9]+>/g, (match) => {
-						const id = match.replace(/<@&/, '').replace(/>/, '');
-						const role = message.guild.roles.cache.get(id);
-						return role ? role.name : match;
-					});
-					//Replace all mentions like <#123456789> with the channel name
-					prompt = prompt.replace(/<#[0-9]+>/g, (match) => {
-						const id = match.replace(/<#/, '').replace(/>/, '');
-						const channel = message.guild.channels.cache.get(id);
-						return channel ? channel.name : match;
-					});
-
-					const inputSystem = fs.readFileSync(path.join(__basedir, 'src', 'utils', 'inputSystem.txt'), 'utf8').replace("%%AUTHOR%%", message.author.username).replace("%%CHANNEL_NAME%%", message.channel.name).replace("%%CHANNEL_TOPIC%%", message.channel.topic || "No hay topico definido")
-					let lastMessages = (await getChatsByID(message.author.id + "-" + message.client.user.id, 20)).reverse();
-
-					let AIPersonality = fs.readFileSync(path.join(__basedir, 'src', 'utils', 'AIPersonality.json'), 'utf8')
-					AIPersonality = JSON.parse(AIPersonality);
-					const response = await openai.createChatCompletion({
-						model: "gpt-3.5-turbo",
-						messages: [
-							{ "role": "system", "content": inputSystem },
-							...AIPersonality,
-							...lastMessages,
-							{ "role": "user", "content": prompt },
-						],
-						user: message.author.username,
-						temperature: 1.2,
-						//If the user is boosting the server, we give them more tokens
-						max_tokens: message.member.premiumSince ? 150 : 75,
-					});
-					await message.reply(response.data.choices[0].message.content || 'No tengo idea de lo que estas hablando.');
-					await createNewChat(message.author.id + "-" + message.author.id, "user", prompt);
-					await createNewChat(message.author.id + "-" + message.author.id, "assistant", response.data.choices[0].message.content);
-
-					return;
-				} catch (error) {
-					console.log(error);
-					return await message.reply('Ocurrio un error al intentar responder a tu pregunta.');
-				}
+				return;
+			} catch (error) {
+				console.log(error);
+				return await message.reply('Ocurrio un error al intentar responder a tu pregunta.');
 			}
 		}
 	},
