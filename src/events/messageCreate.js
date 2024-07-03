@@ -100,6 +100,8 @@ module.exports = {
 			)})\\s*`,
 		);
 
+		console.log(message.mentions)
+
 		if (prefixRegex.test(message.content)) {
 			const [, match] = message.content.match(prefixRegex);
 			const args = message.content.slice(match.length).trim().split(/ +/g);
