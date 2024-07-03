@@ -94,7 +94,7 @@ module.exports = {
 
 		// Command handler
 		const prefixRegex = new RegExp(
-			`^(<@!?${client.user.id}>|${prefix.replace(
+			`^(${prefix.replace(
 				/[.*+?^${}()|[\]\\]/g,
 				'\\$&',
 			)})\\s*`,
