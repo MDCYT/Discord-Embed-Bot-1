@@ -151,7 +151,7 @@ module.exports = {
 
 			}
 			else if (
-		(message.content.includes(`<@${client.user.id}>`) || message.content.includes(`<@!${client.user.id}>`)) && (process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId))
+		(message.mentions.has(client.user.id) || message.mentions.has(client.user)) && (process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId))
 			) {
 				//Check if the user is on cooldown
 				if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
