@@ -100,8 +100,6 @@ module.exports = {
 			)})\\s*`,
 		);
 
-		console.log(message.mentions)
-
 		if (prefixRegex.test(message.content)) {
 			const [, match] = message.content.match(prefixRegex);
 			const args = message.content.slice(match.length).trim().split(/ +/g);
@@ -153,7 +151,7 @@ module.exports = {
 
 			}
 			else if (
-		(message.mentions.has(client.user.id) || message.mentions.has(client.user)) && (process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId))
+		(message.mentions.users.has(message.client.id) || message.mentions.users.has(client.id)) && (process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId))
 			) {
 				//Check if the user is on cooldown
 				if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
