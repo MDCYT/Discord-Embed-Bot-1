@@ -362,7 +362,7 @@ function seconds_to_time(second) {
   //If seconds is a string, convert it to a number
   if (typeof second === "string") second = parseInt(second);
   //If seconds is a float, convert it to a number
-  if (typeof second === "float") second = parseInt(second);
+  if (typeof second === "number") second = parseInt(second);
   //If seconds is less than 0, return 0
   if (second < 0) return 0;
 

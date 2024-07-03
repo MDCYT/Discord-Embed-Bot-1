@@ -2,3 +2,5 @@ node_modules
 .env
 .vscode
 logs
+src/utils/AIPersonality.json
+src/utils/inputSystem.txt

@@ -185,10 +185,10 @@ module.exports = {
 							.setEmoji('🛠️'),
 					);
 
-				message.channel.send({
-					embeds: [embed],
-					components: [linkrow],
-				});
+				// message.channel.send({
+				// 	embeds: [embed],
+				// 	components: [linkrow],
+				// });
 			}
 		}
 
