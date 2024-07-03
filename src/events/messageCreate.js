@@ -11,6 +11,7 @@ const {
 const {
 	stripIndents,
 } = require('common-tags');
+const fs = require('fs');
 
 
 const OpenAI = require('openai');
@@ -155,7 +156,7 @@ module.exports = {
 			) {
 				//Check if the user is on cooldown
 				if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
-						return await message.channel.reply('Espera <t:' + Math.floor((cooldowns.get(message.author.id) + 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) / 1000) + ':R> antes de hacer otra pregunta.');
+						return await message.reply('Espera <t:' + Math.floor((cooldowns.get(message.author.id) + 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) / 1000) + ':R> antes de hacer otra pregunta.');
 					  }
 			}
 
@@ -172,7 +173,7 @@ module.exports = {
 			  const respuestas = ["No puedo responder a eso.", "No deberias preguntar eso.", "No tengo respuesta para eso."];
 			  //Send the response if it is not safe
 			  if (responseModeration.data.results[0].categories.hate || responseModeration.data.results[0].categories['hate/threatening']) {
-				return await message.channel.reply(respuestas[Math.floor(Math.random() * respuestas.length)]);
+				return await message.reply(respuestas[Math.floor(Math.random() * respuestas.length)]);
 			  }
 			  //Replace all mentions like <@!123456789> with the username
 			  prompt = prompt.replace(/<@!?[0-9]+>/g, (match) => {
@@ -211,14 +212,14 @@ module.exports = {
 				//If the user is boosting the server, we give them more tokens
 				max_tokens: message.member.premiumSince ? 150 : 75,
 			  });
-			  await message.channel.reply(response.data.choices[0].message.content || 'No tengo idea de lo que estas hablando.');
+			  await message.reply(response.data.choices[0].message.content || 'No tengo idea de lo que estas hablando.');
 			  await createNewChat(message.author.id + "-" + message.author.id, "user", prompt);
 			  await createNewChat(message.author.id + "-" + message.author.id, "assistant", response.data.choices[0].message.content);
 		
 			  return;
 			} catch (error) {
 			  console.log(error);
-			  return await message.channel.reply('Ocurrio un error al intentar responder a tu pregunta.');
+			  return await message.reply('Ocurrio un error al intentar responder a tu pregunta.');
 			}
 		}
 
