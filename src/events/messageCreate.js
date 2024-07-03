@@ -12,7 +12,7 @@ const {
 	stripIndents,
 } = require('common-tags');
 const fs = require('fs');
-
+const path = require('path');
 
 const OpenAI = require('openai');
 
