@@ -104,7 +104,6 @@ module.exports = {
 			const [, match] = message.content.match(prefixRegex);
 			const args = message.content.slice(match.length).trim().split(/ +/g);
 			const cmd = args.shift().toLowerCase();
-			console.log(cmd);
 			const command = client.commands.get(cmd) || client.aliases.get(cmd);
 			if (disabledCommands.includes(command?.name)) {
 
@@ -152,7 +151,7 @@ module.exports = {
 
 			}
 			else if (
-		(message.content.includes(`<@${client.user.id}>`) || message.content.includes(`<@!${client.user.id}>`)) && message.channel.id === process.env.AI_CHANNEL
+		(message.content.includes(`<@${client.user.id}>`) || message.content.includes(`<@!${client.user.id}>`)) && (process.env.AI_CHANNEL.split(',').includes(message.channel.id) || process.env.AI_CHANNEL.split(',').includes(message.channel.parentId))
 			) {
 				//Check if the user is on cooldown
 				if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
