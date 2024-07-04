@@ -156,7 +156,7 @@ module.exports = {
 			console.log("AI")
 			//Check if the user is on cooldown
 			if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
-				const cooldownMessage = await message.reply('Espera <t:' + Math.floor((cooldowns.get(message.author.id) + 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) / 1000) + ':R> antes de hacer otra pregunta.');
+				const cooldownMessage = await message.reply('Espera, <t:' + Math.floor((cooldowns.get(message.author.id) + 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) / 1000) + ':R> podras volver a preguntar.');
 				cooldownMessage.delete({ timeout: 10 * 1000 });
 				message.delete({ timeout: 10 * 1000 });
 				return;
