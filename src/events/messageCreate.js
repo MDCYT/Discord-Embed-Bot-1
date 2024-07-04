@@ -17,6 +17,7 @@ const path = require('path');
 const OpenAI = require('openai');
 
 const { createNewChat, getChatsByID } = require('../utils/databases/chatia.js');
+const { set } = require('mongoose');
 
 const configuration = new OpenAI.Configuration({
 	organization: process.env.OPENAI_ORG_ID,
@@ -157,8 +158,10 @@ module.exports = {
 			//Check if the user is on cooldown
 			if (cooldowns.has(message.author.id) && Date.now() - cooldowns.get(message.author.id) < 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) {
 				const cooldownMessage = await message.reply('Espera, <t:' + Math.floor((cooldowns.get(message.author.id) + 1000 * 60 * parseInt(process.env.AI_COOLDOWN)) / 1000) + ':R> podras volver a preguntar.');
-				cooldownMessage.delete({ timeout: 10 * 1000 });
-				message.delete({ timeout: 10 * 1000 });
+				setTimeout(() => {
+					cooldownMessage.delete();
+					message.delete();
+				}, 10 * 1000);
 				return;
 			}
 
