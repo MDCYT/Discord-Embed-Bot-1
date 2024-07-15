@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const MinecraftConfig = mongoose.model(
-    "mcConfigs",
+    "mcForumConfigNew",
     new mongoose.Schema(
         {
             GuildID: {
@@ -28,12 +28,20 @@ const MinecraftConfig = mongoose.model(
                 type: Array,
                 required: true
             },
+            JavaTagID: {
+                type: String,
+                required: true
+            },
+            BedrockTagID: {
+                type: String,
+                required: true
+            }
         }
     )
 );
 
 const MinecraftServer = mongoose.model(
-    "mcServer2",
+    "mcServerConfigNew",
     new mongoose.Schema(
         {
             Accepted: {
@@ -111,7 +119,7 @@ module.exports = {
         const embed = new MinecraftServer(data);
         return await embed.save();
     },
-    async insertMinecraftConfigRow(GuildID, ChannelID, MessageID, ThreadID, EmbedsID = [], AcceptChannelID) {
+    async insertMinecraftConfigRow(GuildID, ChannelID, MessageID, ThreadID, EmbedsID = [], AcceptChannelID, JavaTagID, BedrockTagID) {
         if (await MinecraftConfig.exists({ GuildID: GuildID })) {
             return MinecraftConfig.findOneAndUpdate({ GuildID: GuildID }, {
                 GuildID: GuildID,
@@ -119,18 +127,21 @@ module.exports = {
                 MessageID: MessageID,
                 ThreadID: ThreadID,
                 EmbedsID: EmbedsID,
-                AcceptChannelID: AcceptChannelID
+                AcceptChannelID: AcceptChannelID,
+                JavaTagID: JavaTagID,
             }, { new: true });
 
         }
-        const embed = new MinecraftConfig({ GuildID: GuildID, ChannelID: ChannelID, MessageID: MessageID, ThreadID: ThreadID, EmbedsID: EmbedsID , AcceptChannelID: AcceptChannelID});
+        const embed = new MinecraftConfig({ GuildID: GuildID, ChannelID: ChannelID, MessageID: MessageID, ThreadID: ThreadID, EmbedsID: EmbedsID , AcceptChannelID: AcceptChannelID, JavaTagID: JavaTagID, BedrockTagID: BedrockTagID});
         return await embed.save();
     },
     async updateMinecraftConfigRow(GuildID, {
         ChannelID,
         MessageID,
         ThreadID,
-        EmbedsID = []
+        EmbedsID = [],
+        JavaTagID,
+        BedrockTagID
     }) {
         // If the message ID, the Channel ID or the EmbedsID are not provided, it will not update them
         // Check if embedsID is an array and if have at least one element, if not, it will not update it
@@ -139,7 +150,9 @@ module.exports = {
                 GuildID: GuildID,
                 ChannelID: ChannelID,
                 ThreadID: ThreadID,
-                MessageID: MessageID
+                MessageID: MessageID,
+                JavaTagID: JavaTagID,
+                BedrockTagID: Bedrock
             }, { new: true });
             return embed;
         } else {
@@ -148,7 +161,9 @@ module.exports = {
                 ChannelID: ChannelID,
                 MessageID: MessageID,
                 ThreadID: ThreadID,
-                EmbedsID: EmbedsID
+                EmbedsID: EmbedsID,
+                JavaTagID: JavaTagID,
+                BedrockTagID: BedrockTagID
             }, { new: true });
             return embed;
         }
